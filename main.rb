@@ -1,5 +1,11 @@
 require 'sinatra'
 require 'sinatra/reloader' if development?
+require 'slim'
+require './database.rb'
+
+configure do
+	DataMapper.setup(:default, "sqlite3://#{Dir.pwd}/database.db")
+end
 
 get '/' do
   #bla bla

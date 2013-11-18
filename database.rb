@@ -1,5 +1,7 @@
 require 'data_mapper'
 
+DataMapper.setup(:default, "sqlite3://#{Dir.pwd}/database.db")
+
 class Account #ermöglicht einloggen
 	include DataMapper::Resource
 	property :id, Serial
@@ -9,11 +11,11 @@ class Account #ermöglicht einloggen
 end
 
 class Player
-	inluce DataMapper::Resource
+	include DataMapper::Resource
 	property :id, Serial
 	property :name, String
 	has n, :fields
-	belongs_to, :game, :required => false
+	belongs_to :game, :required => false
 end
 
 class Field
@@ -21,8 +23,8 @@ class Field
 	property :id, Serial
 	property :name, String
 	property :unit_count, Integer
-	belongs_to, :game
-	belongs_to, :player, :required => false
+	belongs_to :game
+	belongs_to :player, :required => false
 end
 
 class Game

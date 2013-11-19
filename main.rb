@@ -2,10 +2,13 @@ require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'slim'
 
-configure do
-	require './database.rb'
-end
+require_relative 'helpers'
 
+configure do
+	Slim::Engine.set_default_options pretty: true, sort_attrs: true
+	set :views, :slim => 'templates'
+	require_relative 'database'
+end
 
 get '/' do
   #bla bla

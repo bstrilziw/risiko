@@ -15,7 +15,7 @@ class Player
 	property :id, Serial
 	property :name, String
 	has n, :fields
-  belongs_to :accoount
+  belongs_to :account
 	belongs_to :game, :required => false
 end
 

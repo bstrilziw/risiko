@@ -1,7 +1,12 @@
 $(document).ready( function() {
     $('.land').click( function() {
+        // Land hervorheben
+        $(this).appendTo($('#worldmap'));
+        // Glüheffekt von allen Ländern entfernen
         $('.land').css('filter', 'none');
+        // und für das gewählte hinzufügen
         $(this).css('filter', 'url(#filter_glow)');
+        // Flächenfarbe des Landes zufällig setzen
         $(this).css('fill', randColor());
     });
 });

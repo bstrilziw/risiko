@@ -7,6 +7,7 @@ require_relative 'helpers'
 configure do
 	Slim::Engine.set_default_options pretty: true, sort_attrs: true
 	set :views, :slim => 'templates'
+  set :public_folder, 'assets'
 	require_relative 'database'
 	enable :sessions
 end
@@ -14,6 +15,11 @@ end
 get '/' do
   #bla bla
   slim :home
+end
+
+get '/game' do
+  # TODO: prüfen, ob Spieler eingeloggt ist
+  slim :game
 end
 
 post '/' do # TODO: zur Übersichtlichkeit an verschiedene URLs posten? z.B.: '/login'

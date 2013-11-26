@@ -1,0 +1,23 @@
+@import 'variables';
+@import 'mixins';
+@import 'reset';
+@import 'textformat';
+@import 'forms';
+@import 'header';
+@import 'content';
+
+/* Styles */
+
+body {
+	font-family: $droid;
+	font-size: 100%;
+	line-height: 1.5em;
+	color: #888;
+	
+	& > div.wrap {
+		margin: 20px auto;
+		width: 100%;
+		max-width: 960px;
+		background-color: #fff;
+	}
+}

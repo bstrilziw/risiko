@@ -1,0 +1,23 @@
+@mixin clearfix-mixin {
+	display: inline-block;
+	&:after {
+		content: ".";
+		display: block;
+		height: 0;
+		clear: both;
+		visibility: hidden; 
+	}
+	* html & { height: 1px }
+	
+	/* required comment for clearfix to work in Opera \*/
+	& { display: block; }
+	/* end clearfix */
+}
+
+@mixin transition($transition) {
+	-webkit-transition: $transition;
+	-moz-transition:    $transition;
+	-ms-transition:     $transition;
+	-o-transition:      $transition;
+	transition:         $transition;
+}

@@ -1,0 +1,15 @@
+.button {
+	padding: 5px;
+	color: #fff;
+	font-size: 1.1rem;
+	background: $main-link-color;
+	border: 2px solid darken($main-link-color, 20%);
+	cursor: pointer;
+	@include transition(background 0.2s ease-out);
+				
+	&:hover {
+		text-decoration: none;
+		background: darken($main-link-color, 20%);
+		@include transition(background 0.2s ease-out);
+	}
+}

@@ -6,11 +6,13 @@ require_relative 'helpers'
 
 configure do
 	Slim::Engine.set_default_options pretty: true, sort_attrs: true
-	set :views, :slim => 'templates'
+	set :views, :slim => 'templates', :scss => 'styles'
   set :public_folder, 'assets'
 	require_relative 'database'
 	enable :sessions
 end
+
+get('/styles/styles.css') { scss :styles }
 
 get '/' do
   #bla bla

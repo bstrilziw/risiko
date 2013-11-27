@@ -8,16 +8,31 @@
 
 /* Styles */
 
+html {
+	height: 100%;
+}
+
 body {
-	font-family: $droid;
-	font-size: 100%;
+	font-family: $main-font-family;
+	font-size: 14px;
 	line-height: 1.5em;
 	color: #888;
+	background-color: $main-background-color;
+	background-image:-webkit-gradient(linear,50% 0%,50% 100%,color-stop(0%,$main-background-color),color-stop(100%,darken($main-background-color, 20%)));
+	background-image:-webkit-linear-gradient($main-background-color,darken($main-background-color, 20%));
+	background-image:-moz-linear-gradient($main-background-color,darken($main-background-color, 20%));
+	background-image:-o-linear-gradient($main-background-color,darken($main-background-color, 20%));
+	background-image:linear-gradient($main-background-color,darken($main-background-color, 20%));
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	height: 100%;
 	
 	& > div.wrap {
-		margin: 20px auto;
+		margin: 0 auto;
+		padding: 0 20px;
 		width: 100%;
-		max-width: 960px;
+		max-width: 1200px;
 		background-color: #fff;
+		overflow: hidden;
 	}
 }

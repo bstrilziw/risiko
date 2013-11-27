@@ -1,10 +1,11 @@
-nav
-	span#menutoggler: a href="#" Menü
+nav#menu
+	span
+		a href="#" Menü
 	ul
-		li: a href="/" Home
-		- if !@logged_in?
+		- if !@logged_in
 			li: a href="/login" Login
-		li: a href="/rules" Spielregeln
-		- if @logged_in?
+		li: a href="#" Spielregeln
+		- if @logged_in
+			li: a href="/profile" Profil
 			li: a href="/games" Lobby
 			li: a href="/logout" Logout

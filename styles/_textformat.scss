@@ -14,7 +14,7 @@ a {
 	@include transition(color 0.2s ease-out);
 	
 	&:hover {
-		color: darken($main-link-color, 10%);
+		color: darken($main-link-color, 20%);
 		@include transition(color 0.2s ease-out);
 	}
 }

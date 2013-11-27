@@ -1,4 +1,8 @@
+var headerMenu;
+
 $(document).ready( function() {
+	headerMenu = $('#menu');
+	
     $('.land').click( function() {
         // Land hervorheben
         $(this).appendTo($('#worldmap'));
@@ -9,6 +13,19 @@ $(document).ready( function() {
         // Flächenfarbe des Landes zufällig setzen
         $(this).css('fill', randColor());
     });
+	
+	// öffnet das Menü
+	headerMenu.find('span').bind('click', function() {
+		$(this).parent().toggleClass('open');
+		return false;
+	});
+	
+	// schließt das Menü, falls man irgendwo hinklickt
+	$('body').bind('click', function() {
+		if (headerMenu.hasClass('open')) {
+			headerMenu.removeClass('open');
+		}
+	});
 });
 
 function intToColor(int) {

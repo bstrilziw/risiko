@@ -21,3 +21,24 @@
 	-o-transition:      $transition;
 	transition:         $transition;
 }
+
+@mixin rotate-element($deg) {
+	$prefixes: "-moz-transform" "-webkit-transform" "-o-transform" "-ms-transform" "transform";
+	
+	@each $prefix in $prefixes {
+		#{$prefix}: rotate(#{$deg}deg);
+	}
+	
+	@if $deg >= 270 {
+		filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+	}
+	@else if $deg >= 180 {
+		filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+	}
+	@else if $deg >= 90 {
+		filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+	}
+	@else {
+		filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=4);
+	}
+}

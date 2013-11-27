@@ -16,6 +16,7 @@ get('/styles/styles.css') { scss :styles }
 
 get '/' do
   #bla bla
+	@logged_in = true
   slim :home
 end
 

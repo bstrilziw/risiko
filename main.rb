@@ -22,6 +22,27 @@ end
 
 get '/game' do
   # TODO: prüfen, ob Spieler eingeloggt ist
+	session[:player_id] = 1
+  laender = Country.all(game: Account.get(session[:player_id]).game)
+	# TODO DRY?!
+	alaska = laender.first(name: "alaska")
+	@alaska = alaska.unit_count if !alaska.nil?
+	alberta = laender.first(name: "alberta")
+	@alberta = alberta.unit_count if !alberta.nil?
+	ontario = laender.first(name: "ontario")
+	@ontario = ontario.unit_count if !ontario.nil?
+	weststaaten = laender.first(name: "weststaaten")
+	@weststaaten = weststaaten.unit_count if !weststaaten.nil?
+	mittel_amerika = laender.first(name: "mittel_amerika")
+	@mittel_amerika = mittel_amerika.unit_count if !mittel_amerika.nil?
+	oststaaten = laender.first(name: "oststaaten")
+	@oststaaten = oststaaten.unit_count if !oststaaten.nil?
+	groenland = laender.first(name: "groenland")
+	@groenland = groenland.unit_count if !groenland.nil?
+	nordwest_territorium = laender.first(name: "nordwest_territorium")
+	@nordwest_territorium = nordwest_territorium.unit_count if !nordwest_territorium.nil?
+	quebec = laender.first(name: "quebec")
+	@quebec = quebec.unit_count if !quebec.nil?
   slim :game
 end
 

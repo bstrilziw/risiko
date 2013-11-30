@@ -46,13 +46,13 @@ get '/game' do
   slim :game
 end
 
-post '/' do # TODO: zur Übersichtlichkeit an verschiedene URLs posten? z.B.: '/login'
+post '/login' do # TODO: zur Übersichtlichkeit an verschiedene URLs posten? z.B.: '/login'
 	# Session-basiertes Login-System
 	if !session.key?(:account_id) # bereits eingeloggt?
 		if !params[:login_name].nil? && !params[:login_pass].nil?
 			# TODO: Daten auf vollständigkeit prüfen: länge?
 			
-			account = Account.get( :login_name => params[:login_name] )
+			account = Account.get( :login_name => params[:login_name] ) # geht das hier überhaupt? Will "get" nicht ID´s? EDIT: Funktioniert auf jeden Fall
 			
 			if account.nil? || account.password != params[:login_pass]
 				# Benutzername oder Passwort ungültig
@@ -62,18 +62,27 @@ post '/' do # TODO: zur Übersichtlichkeit an verschiedene URLs posten? z.B.: '/
 			else
 				# Login-Informationen korrekt
 				session[:account_id] = account.id
+				session[:account_name] = account.name
 				# TODO: Account-Namen in der Session speichern, oder immer wieder neu aus der DB laden?
 				
 				# TODO: neue Seite anzeigen, nachdem man eingeloggt ist?
-				# 		oder gleiche Seite umgestalten?
+				# 		oder gleiche Seite umgestalten? <<- gleiche Seite umgestalten, Feedback fürs Einloggen erhalten
+				# 		z.b. "Willkommen Fafnir!"
 				redirect '/'
 			end
 		end
 	end	
 end
 
-get '/:name' do
-  # einfach nur weil ich es kann.
-  @name = :name
-  "Hello #{:name}, how are you?"
+get '/login' do
+  # Login-Formular
+  slim :login	
 end
+get '/logout' do	# bin ich einfach nur doof, oder werden überschriften (h1, h2, ..) immer in caps dargestellt?
+	@logout = "Successfully logged out!"
+	slim :logout
+end
+get '/testpage' do
+	@hello = "Hello"
+	slim :home
+end	

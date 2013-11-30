@@ -86,3 +86,17 @@ get '/testpage' do
 	@hello = "Hello"
 	slim :home
 end	
+get '/account/new' do #Neue Accounts
+	@account = Account.new
+	slim :new_account
+end
+post '/account/new' do
+	if params[:login_name] != nil && params[:login_pass] != nil && params[:name] != nil
+		account = Account.create(login_name: params[:login_name], password: params[:login_pass], name: params[:name], game: Game.first)
+	end
+	if account.saved?
+		redirect to('/')
+	else
+		slim :fehler
+	end	
+end

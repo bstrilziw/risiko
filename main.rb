@@ -15,8 +15,7 @@ end
 get('/styles/styles.css') { scss :styles }
 
 get '/' do
-  #bla bla
-	@logged_in = true
+	@logged_in = true # UNUSED
   slim :home
 end
 
@@ -46,17 +45,25 @@ get '/game' do
   slim :game
 end
 
-post '/login' do # TODO: zur Übersichtlichkeit an verschiedene URLs posten? z.B.: '/login'
+get '/login' do
+	if session.key?(:account_id) # bereits eingeloggt
+		redirect '/'
+	end
+  # Login-Formular
+  slim :login	
+end
+
+post '/login' do
 	# Session-basiertes Login-System
 	if !session.key?(:account_id) # bereits eingeloggt?
 		if !params[:login_name].nil? && !params[:login_pass].nil?
 			# TODO: Daten auf vollständigkeit prüfen: länge?
 			
-			account = Account.get( :login_name => params[:login_name] ) # geht das hier überhaupt? Will "get" nicht ID´s? EDIT: Funktioniert auf jeden Fall
+			account = Account.first( :login_name => params[:login_name] )
 			
 			if account.nil? || account.password != params[:login_pass]
-				# Benutzername oder Passwort ungültig
-				@login_info = "Benutzername, oder Passwort ung&uuml;ltig"
+				# Benutzername oder Passwort ungueltig
+				@login_info = "Benutzername, oder Passwort ung&uuml;ltig" # UNUSED
 				
 				redirect '/'
 			else
@@ -71,25 +78,27 @@ post '/login' do # TODO: zur Übersichtlichkeit an verschiedene URLs posten? z.B
 				redirect '/'
 			end
 		end
+	else
+		slim "p#fehler Sie sind bereits eingelogt."
 	end	
 end
 
-get '/login' do
-  # Login-Formular
-  slim :login	
-end
-get '/logout' do	# bin ich einfach nur doof, oder werden überschriften (h1, h2, ..) immer in caps dargestellt?
-	@logout = "Successfully logged out!"
+get '/logout' do
+	session.clear
+	@logout = "Successfully logged out!" # UNUSED
 	slim :logout
 end
+
 get '/testpage' do
-	@hello = "Hello"
+	@hello = "Hello" # UNUSED
 	slim :home
 end	
+
 get '/account/new' do #Neue Accounts
-	@account = Account.new
+	@account = Account.new # UNUSED
 	slim :new_account
 end
+
 post '/account/new' do
 	if params[:login_name] != nil && params[:login_pass] != nil && params[:name] != nil
 		account = Account.create(login_name: params[:login_name], password: params[:login_pass], name: params[:name], game: Game.first)
@@ -97,6 +106,6 @@ post '/account/new' do
 	if account.saved?
 		redirect to('/')
 	else
-		slim :fehler
+		slim "p#fehler Account konnte nicht erstellt werden."
 	end	
 end

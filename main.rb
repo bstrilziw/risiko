@@ -15,14 +15,19 @@ end
 get('/styles/styles.css') { scss :styles }
 
 get '/' do
-	@logged_in = true # UNUSED
+	if session.key?(:account_id) # eingeloggt?
+		@logged_in = true
+	end
   slim :home
 end
 
 get '/game' do
-  # TODO: prüfen, ob Spieler eingeloggt ist
-	session[:player_id] = 1
-  laender = Country.all(game: Account.get(session[:player_id]).game)
+  if !session.key?(:account_id) # nicht eingeloggt?
+		redirect '/login'
+	end
+	@logged_in = true
+	
+	laender = Country.all(game: Account.get(session[:account_id]).game)
 	# TODO DRY?!
 	alaska = laender.first(name: "alaska")
 	@alaska = alaska.unit_count if !alaska.nil?
@@ -46,7 +51,7 @@ get '/game' do
 end
 
 get '/login' do
-	if session.key?(:account_id) # bereits eingeloggt
+	if session.key?(:account_id) # bereits eingeloggt?
 		redirect '/'
 	end
   # Login-Formular
@@ -55,7 +60,7 @@ end
 
 post '/login' do
 	# Session-basiertes Login-System
-	if !session.key?(:account_id) # bereits eingeloggt?
+	if !session.key?(:account_id) # nicht eingeloggt?
 		if !params[:login_name].nil? && !params[:login_pass].nil?
 			# TODO: Daten auf vollständigkeit prüfen: länge?
 			
@@ -84,15 +89,14 @@ post '/login' do
 end
 
 get '/logout' do
-	session.clear
-	@logout = "Successfully logged out!" # UNUSED
-	slim :logout
+	if session.key?(:account_id) # eingeloggt?
+		session.clear
+		@logout = "Successfully logged out!" # UNUSED
+		slim :logout
+	else
+			redirect '/'
+	end
 end
-
-get '/testpage' do
-	@hello = "Hello" # UNUSED
-	slim :home
-end	
 
 get '/account/new' do #Neue Accounts
 	@account = Account.new # UNUSED
@@ -101,7 +105,8 @@ end
 
 post '/account/new' do
 	if params[:login_name] != nil && params[:login_pass] != nil && params[:name] != nil
-		account = Account.create(login_name: params[:login_name], password: params[:login_pass], name: params[:name], game: Game.first)
+		# TODO pruefen, ob login_name bereits vergeben ist
+		account = Account.create(login_name: params[:login_name], password: params[:login_pass], name: params[:name])
 	end
 	if account.saved?
 		redirect to('/')

@@ -95,7 +95,7 @@ post '/login' do
 				# Benutzername oder Passwort ungueltig
 				@login_info = "Benutzername, oder Passwort ung&uuml;ltig" # UNUSED
 				
-				redirect '/'
+				redirect '/login'
 			else
 				# Login-Informationen korrekt
 				session[:account_id] = account.id
@@ -109,7 +109,7 @@ post '/login' do
 			end
 		end
 	else
-		slim "p#fehler Sie sind bereits eingelogt."
+		slim "p.fehler Sie sind bereits eingelogt."
 	end	
 end
 
@@ -136,6 +136,6 @@ post '/account/new' do
 	if account.saved?
 		redirect to('/')
 	else
-		slim "p#fehler Account konnte nicht erstellt werden."
+		slim "p.fehler Account konnte nicht erstellt werden."
 	end	
 end

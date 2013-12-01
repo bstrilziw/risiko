@@ -73,7 +73,7 @@ function intToColor(int) {
 function randColor(currentColor) {
     var newColor = currentColor;
     while (newColor === currentColor) {
-        newColor = intToColor( Math.floor((Math.random()*10)+1) );
+        newColor = intToColor( Math.floor((Math.random()*10)) );
     }
     return newColor;
 }

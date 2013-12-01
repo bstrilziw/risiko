@@ -27,7 +27,33 @@ $(document).ready( function() {
                     headerMenu.removeClass('open');
             }
     });
+	
+	// Update request alle 5 Sekunden
+	setTimeout( function(){
+		update();
+	} , 5000);
 });
+
+function update() {
+	$.ajax({
+		type: "GET",
+		url: "/update",
+		success: function(data) {
+			data = $.parseJSON(data);
+			console.log(data);
+			// Daten verarbeiten
+			var laender = data.mapdata;
+			console.log(laender);
+			for (var i = 0; i < laender.length; i++) {
+				var land = laender[i];
+				$('#text_' + land.name).children().last().text(land.unit_count);
+			}
+		}
+	});
+	setTimeout( function() {
+		update();
+	}, 5000);
+}
 
 function intToColor(int) {
      switch(int) {

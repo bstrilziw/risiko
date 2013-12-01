@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'slim'
+require 'json'
 
 require_relative 'helpers'
 
@@ -48,6 +49,30 @@ get '/game' do
 	quebec = laender.first(name: "quebec")
 	@quebec = quebec.unit_count if !quebec.nil?
   slim :game
+end
+
+get '/update' do # Spieldaten abfragen
+	halt 500 if !session.key?(:account_id) # nicht eingeloggt?
+	halt 500 if !request.xhr? # kein AJAX Aufruf?
+	
+	# Allgemeine Spielinformationen
+	game = Account.get(session[:account_id]).game
+	active_player = Account.get(game.active_player)
+	active_player = active_player.name if !active_player.nil?
+	
+	# Laenderinformationen
+	countries = Country.all(game: game)
+	laender = []
+	countries.each do |land|
+		# zu testzwecken wird hier immer eine Einheit hinzugefuegt
+		land.unit_count += 1;
+		land.save;
+		owner = Account.get(land.account)
+		owner = owner.name if !owner.nil?
+		laender << {owner: owner, name: land.name, unit_count: land.unit_count}
+	end
+	
+	halt 200, {active_player: active_player, mapdata: laender}.to_json
 end
 
 get '/login' do

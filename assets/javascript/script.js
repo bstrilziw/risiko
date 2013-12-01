@@ -2,14 +2,15 @@ var headerMenu;
 
 $(document).ready( function() {
     headerMenu = $('#menu');
-        
+	
+	// Farbwechsel der Länder
     $('.land').click( function() {
         // Land hervorheben
         $(this).appendTo($('#images'));
         // Glüheffekt von allen Ländern entfernen
-        $('.land').css('filter', 'none');
+        $('.land_selected').attr('class', 'land');
         // und für das gewählte hinzufügen
-        $(this).css('filter', 'url(#filter_glow)');
+        $(this).attr("class", "land land_selected");
         // Flächenfarbe des Landes zufällig setzen
         $(this).css('fill', randColor());
     });

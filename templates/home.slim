@@ -1,6 +1,10 @@
 p Hallo #{session[:account_name]}!
 
 ul
-  li Hier Content
-  li: a href="/login" anmelden
-  li: a href="/game" zum Spiel
+  - if !@logged_in
+		li Hier Content
+		li: a href="/login" anmelden
+		li: a href="/game" zum Spiel
+  - if @logged_in
+		li Hier Content
+		li: a href="/game" zum Spiel

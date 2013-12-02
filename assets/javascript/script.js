@@ -13,6 +13,14 @@ $(document).ready( function() {
         $(this).attr("class", "land land_selected");
         // Flächenfarbe des Landes zufällig setzen
         $(this).css('fill', randColor());
+		
+		$.ajax({
+			type: "POST",
+			url: "/update/new_unit",
+			data: {data: JSON.stringify( new Array(
+						{land_name: ($(this).attr('id')).slice(5, $(this).attr('id').length)}
+						) ) }
+		});
     });
     
     // öffnet das Menü
@@ -39,7 +47,7 @@ function update() {
 		type: "GET",
 		url: "/update",
 		success: function(data) {
-			data = $.parseJSON(data);
+			data = JSON.parse(data);
 			console.log(data);
 			// Daten verarbeiten
 			var laender = data.mapdata;

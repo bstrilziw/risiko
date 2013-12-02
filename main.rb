@@ -65,7 +65,7 @@ get '/update' do # Spieldaten abfragen
 	laender = []
 	countries.each do |land|
 		# zu testzwecken wird hier immer eine Einheit hinzugefuegt
-		land.unit_count += 1;
+		#land.unit_count += 1;
 		land.save;
 		owner = Account.get(land.account)
 		owner = owner.name if !owner.nil?
@@ -73,6 +73,30 @@ get '/update' do # Spieldaten abfragen
 	end
 	
 	halt 200, {active_player: active_player, mapdata: laender}.to_json
+end
+
+post '/update/new_unit' do
+	# fuegt einigen Laendern Einheiten hinzu
+	# Zu viele Fehlerabfragen eingebaut ?
+	halt 500, "Fehler: ungueltige Daten." if params[:data].nil?
+	halt 500, "Fehler: Sie sind nicht eingeloggt." if !session.key? :account_id
+	account = Account.get(session[:account_id])
+	halt 500, "Fehler: Diesen Account gibt es nicht." if account.nil?
+	game = account.game
+	halt 500, "Fehler: Keinem Spiel zugeordnet." if game.nil?
+	laender = Country.all(game: game)
+	halt 500, "Fehler: Es gibt keine Laender in diesem Spiel." if laender.empty?
+	parsed_data = JSON.parse(params[:data])
+	halt 500, "Fehler: keine gueltigen Informationen." if parsed_data.class.to_s != "Array"
+	parsed_data.each do |data|
+		data = parsed_data[0]
+		halt 500 if !data.key?("land_name")
+		land = laender.first(name: data["land_name"]) 
+		halt 500, "Fehler: Es gibt dieses Land nicht: " + data["land_name"] if land.nil?
+		land.unit_count += 1
+		land.save
+	end
+	""
 end
 
 get '/login' do

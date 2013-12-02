@@ -24,6 +24,9 @@ end
 class Game
 	include DataMapper::Resource
 	property :id, Serial
+	property :phase, Integer, default: 0
+	property :running, Boolean, default: false
+	property :private, Boolean, default: false
   has 1, :active_player, 'Account'
 	has n, :players, 'Account'
   has n, :countries, 'Country'

@@ -4,6 +4,7 @@ require 'slim'
 require 'json'
 
 require_relative 'helpers'
+require_relative 'db_helpers'
 
 configure do
 	Slim::Engine.set_default_options pretty: true, sort_attrs: true
@@ -22,10 +23,19 @@ get '/' do
   slim :home
 end
 
+get '/list' do
+	@games = Game.all(running: false) # hier pruefen ob das Spiel bereits laeuft
+	slim :game_list
+end
+
+get '/lobby' do
+	redirect '/login' if !session.key?(:account_id) # nicht eingeloggt?
+	@players = Account.all(game: get_game)
+	slim :lobby
+end
+
 get '/game' do
-  if !session.key?(:account_id) # nicht eingeloggt?
-		redirect '/login'
-	end
+  redirect '/login' if !session.key?(:account_id) # nicht eingeloggt?
 	@logged_in = true
 	
 	laender = Country.all(game: Account.get(session[:account_id]).game)
@@ -56,7 +66,7 @@ get '/update' do # Spieldaten abfragen
 	halt 500 if !request.xhr? # kein AJAX Aufruf?
 	
 	# Allgemeine Spielinformationen
-	game = Account.get(session[:account_id]).game
+	game = get_game
 	active_player = Account.get(game.active_player)
 	active_player = active_player.name if !active_player.nil?
 	
@@ -80,11 +90,7 @@ post '/update/new_unit' do
 	# Zu viele Fehlerabfragen eingebaut ?
 	halt 500, "Fehler: ungueltige Daten." if params[:data].nil?
 	halt 500, "Fehler: Sie sind nicht eingeloggt." if !session.key? :account_id
-	account = Account.get(session[:account_id])
-	halt 500, "Fehler: Diesen Account gibt es nicht." if account.nil?
-	game = account.game
-	halt 500, "Fehler: Keinem Spiel zugeordnet." if game.nil?
-	laender = Country.all(game: game)
+	laender = Country.all(game: get_game)
 	halt 500, "Fehler: Es gibt keine Laender in diesem Spiel." if laender.empty?
 	parsed_data = JSON.parse(params[:data])
 	halt 500, "Fehler: keine gueltigen Informationen." if parsed_data.class.to_s != "Array"

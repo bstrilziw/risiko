@@ -1,0 +1,10 @@
+h2 Spiellobby
+br
+h3 Spieler
+br
+ul
+	- for player in @players ||= [] do
+		li.player = player.name
+br
+button#button_start_game Spiel starten
+button#button_leave_game Spiel verlassen

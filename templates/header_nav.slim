@@ -2,11 +2,11 @@ nav#menu
 	span
 		a href="#" Menü
 	ul
-		- if !@logged_in
+		- unless logged_in?
 			li: a href="/login" Login
-		- if @logged_in
+		- if logged_in?
 			li: a href="/profile" Profil
 		li: a href="#" Spielregeln
-		- if @logged_in
+		- if logged_in?
 			li: a href="/lobby" Lobby
 			li: a href="/logout" Logout

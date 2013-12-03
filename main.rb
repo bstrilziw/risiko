@@ -17,28 +17,25 @@ end
 get('/styles/styles.css') { scss :styles }
 
 get '/' do
-	if session.key?(:account_id) # eingeloggt?
-		@logged_in = true
-	end
   slim :home
 end
 
 get '/list' do
+	redirect '/' unless logged_in?
 	@games = Game.all(running: false) # hier pruefen ob das Spiel bereits laeuft
 	slim :game_list
 end
 
 get '/lobby' do
-	redirect '/login' if !session.key?(:account_id) # nicht eingeloggt?
+	redirect '/login' unless logged_in?
 	@players = Account.all(game: get_game)
 	slim :lobby
 end
 
 get '/game' do
-  redirect '/login' if !session.key?(:account_id) # nicht eingeloggt?
-	@logged_in = true
+  redirect '/login' unless logged_in?
 	
-	laender = Country.all(game: Account.get(session[:account_id]).game)
+	laender = Country.all(game: get_game)
 	# TODO DRY?!
 	alaska = laender.first(name: "alaska")
 	@alaska = alaska.unit_count if !alaska.nil?
@@ -62,7 +59,7 @@ get '/game' do
 end
 
 get '/update' do # Spieldaten abfragen
-	halt 500 if !session.key?(:account_id) # nicht eingeloggt?
+	halt 500 unless logged_in?
 	halt 500 if !request.xhr? # kein AJAX Aufruf?
 	
 	# Allgemeine Spielinformationen
@@ -89,7 +86,7 @@ post '/update/new_unit' do
 	# fuegt einigen Laendern Einheiten hinzu
 	# Zu viele Fehlerabfragen eingebaut ?
 	halt 500, "Fehler: ungueltige Daten." if params[:data].nil?
-	halt 500, "Fehler: Sie sind nicht eingeloggt." if !session.key? :account_id
+	halt 500, "Fehler: Sie sind nicht eingeloggt." unless logged_in?
 	laender = Country.all(game: get_game)
 	halt 500, "Fehler: Es gibt keine Laender in diesem Spiel." if laender.empty?
 	parsed_data = JSON.parse(params[:data])
@@ -106,54 +103,45 @@ post '/update/new_unit' do
 end
 
 get '/login' do
-	if session.key?(:account_id) # bereits eingeloggt?
-		redirect '/'
-	end
+	redirect '/' if logged_in?
   # Login-Formular
   slim :login	
 end
 
 post '/login' do
 	# Session-basiertes Login-System
-	if !session.key?(:account_id) # nicht eingeloggt?
-		if !params[:login_name].nil? && !params[:login_pass].nil?
-			# TODO: Daten auf vollständigkeit prüfen: länge?
-			
-			account = Account.first( :login_name => params[:login_name] )
-			
-			if account.nil? || account.password != params[:login_pass]
-				# Benutzername oder Passwort ungueltig
-				@login_info = "Benutzername, oder Passwort ung&uuml;ltig" # UNUSED
-				
-				redirect '/login'
-			else
-				# Login-Informationen korrekt
-				session[:account_id] = account.id
-				session[:account_name] = account.name
-				# TODO: Account-Namen in der Session speichern, oder immer wieder neu aus der DB laden?
-				
-				# TODO: neue Seite anzeigen, nachdem man eingeloggt ist?
-				# 		oder gleiche Seite umgestalten? <<- gleiche Seite umgestalten, Feedback fürs Einloggen erhalten
-				# 		z.b. "Willkommen Fafnir!"
-				redirect '/'
-			end
-		end
-	else
-		slim "p.fehler Sie sind bereits eingelogt."
-	end	
-end
+	halt 500, "Sie sind bereits eingeloggt." if logged_in?
+	if !params[:login_name].nil? && !params[:login_pass].nil?
 
-get '/logout' do
-	if session.key?(:account_id) # eingeloggt?
-		session.clear
-		@logout = "Successfully logged out!" # UNUSED
-		slim :logout
-	else
+		account = Account.first( :login_name => params[:login_name] )
+
+		if account.nil? || account.password != params[:login_pass]
+			# Benutzername oder Passwort ungueltig
+			@login_info = "Benutzername, oder Passwort ung&uuml;ltig" # UNUSED
+
+			redirect '/login'
+		else
+			# Login-Informationen korrekt
+			session[:account_id] = account.id
+			session[:account_name] = account.name
+			# TODO: Account-Namen in der Session speichern, oder immer wieder neu aus der DB laden?
+
+			# TODO: neue Seite anzeigen, nachdem man eingeloggt ist?
+			# 		oder gleiche Seite umgestalten? <<- gleiche Seite umgestalten, Feedback fürs Einloggen erhalten
+			# 		z.b. "Willkommen Fafnir!"
 			redirect '/'
+		end
 	end
 end
 
+get '/logout' do
+	redirect '/' unless logged_in?
+		session.clear
+		slim :logout
+end
+
 get '/account/new' do #Neue Accounts
+	redirect '/' unless logged_in?
 	@account = Account.new # UNUSED
 	slim :new_account
 end

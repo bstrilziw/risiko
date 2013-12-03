@@ -58,6 +58,25 @@ get '/game' do
   slim :game
 end
 
+get '/game/create' do
+	redirect '/login' unless logged_in?
+	# TODO: Spieleinstellungen vornehmen lassen? (game_create.slim)
+	redirect '/list' unless get_account.game.nil?
+	get_account.update(game: Game.create())
+	redirect '/lobby'
+end
+
+get '/game/start' do
+	redirect '/login' unless logged_in?
+	get_game.update(running: true)
+	redirect 'game'
+end
+
+get '/game/leave' do
+	redirect '/login' unless logged_in?
+	redirect '/list'
+end
+
 get '/update' do # Spieldaten abfragen
 	halt 500 unless logged_in?
 	halt 500 if !request.xhr? # kein AJAX Aufruf?

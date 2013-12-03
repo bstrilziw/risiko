@@ -1,6 +1,11 @@
 h3 momentan offene Spiele
 br
 ul
+	- i = 0
 	- for game in @games ||= [] do
+		- i += 1
 		/ Spielbeschreibung hier ausgeben?
-		li: a href="#" = game
+		li: a href="#" = i.to_s + ". " + game.to_s
+br
+form method="GET" action="/game/create"
+	button#button_create_game type="submit" Spiel erstellen

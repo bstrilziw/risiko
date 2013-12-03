@@ -6,5 +6,7 @@ ul
 	- for player in @players ||= [] do
 		li.player = player.name
 br
-button#button_start_game Spiel starten
-button#button_leave_game Spiel verlassen
+form method="GET" action="/game/start"
+	button#button_start_game Spiel starten
+form method="GET" action="/game/leave"
+	button#button_leave_game Spiel verlassen

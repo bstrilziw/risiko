@@ -22,7 +22,7 @@ end
 
 get '/list' do
 	redirect '/' unless logged_in?
-	@games = Game.all(running: false) # hier pruefen ob das Spiel bereits laeuft
+	@games = Game.all()#running: false) # hier pruefen ob das Spiel bereits laeuft
 	slim :game_list
 end
 
@@ -68,18 +68,49 @@ end
 
 get '/game/start' do
 	redirect '/login' unless logged_in?
-	get_game.update(running: true)
+	game = get_game
+	redirect '/game' if game.running
+	game.update(running: true)
+	# Felder erstellen
+	felder_namen = [
+			# Nord-Amerika
+			"alaska", "alberta", "weststaaten", "mittel-amerika", 
+			"nordwest-territorium", "ontario", "oststaaten", "quebec", "groenland",
+			# Süd-Amerika
+			"venezuela", "peru", "brasilien", "argentinien",
+			# Afrika
+			"nordwest-afrika", "aegypten", "ost-afrika", "kongo", "sued-afrika", "madagaskar",
+			# Europa
+			"island", "skandinavien", "ukraine", "gross-britannien", "mittel-europa",
+			"west-europa", "sued-europa",
+			# Asien
+			"mittlerer-osten", "afghanistan", "ural", "sibirien", "jakutien", "kamtschatka",
+			"irkutsk", "mongolei", "japan", "china", "indien", "siam",
+			# Ozeanien
+			"indonesien", "neu-guinea", "ost-australien", "west-australien"]
+	felder_namen.each do |feld_name|
+		Country.create(name: feld_name, unit_count: 0, game: game)
+	end
 	redirect 'game'
 end
 
 get '/game/leave' do
 	redirect '/login' unless logged_in?
+	# Spiel <-> Spieler Verbindung trennen
+	game_id = get_game.id
+	get_account.update(game: nil)
+	game = Game.get(game_id)
+	# Spiel loeschen, wenn leer
+	redirect '/list' unless game.players.empty?
+	laender = Country.all(game: game)
+	laender.each { |land| land.destroy }
+	game.destroy
 	redirect '/list'
 end
 
 get '/update' do # Spieldaten abfragen
 	halt 500 unless logged_in?
-	halt 500 if !request.xhr? # kein AJAX Aufruf?
+	halt 404 if !request.xhr? # kein AJAX Aufruf?
 	
 	# Allgemeine Spielinformationen
 	game = get_game

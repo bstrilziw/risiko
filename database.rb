@@ -36,7 +36,4 @@ DataMapper.finalize
 DataMapper.auto_migrate!
 
 # Testdatensaetze
-game = Game.create()
-Account.create(login_name: "admin", password: "1234", name: "ADM1N", game: Game.first)
-Country.create(name: "alaska", unit_count: 1, game: game)
-Country.create(name: "alberta", unit_count: 1, game: game)
+Account.create(login_name: "admin", password: "1234", name: "ADM1N")

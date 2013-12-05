@@ -45,6 +45,8 @@ header {
 			right: 0;
 			z-index: 1;
 			text-align: right;
+			height: 0;
+			overflow: hidden;
 			
 			li a {
 				background-color: $main-background-color;
@@ -71,6 +73,7 @@ header {
 				
 				opacity: 1;
 				
+				height: auto;
 			}
 		}
 	}

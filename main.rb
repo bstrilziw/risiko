@@ -94,7 +94,7 @@ get '/game/start' do
 	redirect '/login' unless logged_in?
 	game = get_game
 	redirect '/game' if game.running
-	game.update(running: true)
+	game.update(running: true, active_player: game.players.first)
 	# Felder erstellen
 	felder_namen = [
 			# Nord-Amerika
@@ -138,9 +138,10 @@ get '/update' do # Spieldaten abfragen
 	
 	# Allgemeine Spielinformationen
 	game = get_game
-	active_player = Account.get(game.active_player)
+	active_player = game.active_player
 	active_player = active_player.name if !active_player.nil?
 	phase = game.phase
+	phase = 3 if game.active_player != get_account
 	
 	# Laenderinformationen
 	countries = Country.all(game: game)
@@ -154,7 +155,25 @@ get '/update' do # Spieldaten abfragen
 		laender << {owner: owner, name: land.name, unit_count: land.unit_count}
 	end
 	
-	halt 200, {active_player: active_player, mapdata: laender}.to_json
+	halt 200, {active_player: active_player, mapdata: laender, phase: phase}.to_json
+end
+
+post '/update/phase' do # Spieler hat am Ende einer Phase auf Bestätigen geklickt
+	account = get_account
+	game = get_game
+	halt 500, "Sie sind nicht an der Reihe." unless account == game.active_player
+	if game.active_player == game.players.last
+		game.update(active_player: game.players.first)
+	else
+		index = game.players.index(game.active_player)
+		game.update(active_player: game.players[index+1])
+	end
+	halt 500, "Fehler beim Speichern." unless game.saved?
+	game.phase += 1
+	game.phase = 0 if game.phase == 3
+	game.save
+	halt 500, "Fehler beim Speichern." unless game.saved?
+	status 200
 end
 
 post '/update/new_unit' do
@@ -167,11 +186,11 @@ post '/update/new_unit' do
 	parsed_data = JSON.parse(params[:data])
 	halt 500, "Fehler: keine gueltigen Informationen." if parsed_data.class.to_s != "Array"
 	parsed_data.each do |data|
-		data = parsed_data[0]
 		halt 500 if !data.key?("land_name")
+		halt 500 if !data.key?("unit_count")
 		land = laender.first(name: data["land_name"]) 
 		halt 500, "Fehler: Es gibt dieses Land nicht: " + data["land_name"] if land.nil?
-		land.unit_count += 1
+		land.unit_count += data["unit_count"]
 		land.save
 	end
 	""

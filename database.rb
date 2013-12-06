@@ -2,7 +2,7 @@ require 'data_mapper'
 
 DataMapper.setup(:default, "sqlite3://#{Dir.pwd}/database.db")
 
-class Account #ermoeglicht einloggen
+class Account
 	include DataMapper::Resource
 	property :id, Serial
 	property :login_name, String
@@ -25,7 +25,7 @@ class Game
 	include DataMapper::Resource
 	property :id, Serial
 	property :name, String
-	property :phase, Integer, default: 0
+	property :phase, Integer, default: 0 # 0: Verteilen; 1: Angreifen; 2: Verschieben;
 	property :running, Boolean, default: false
 	property :private, Boolean, default: false
   has 1, :active_player, 'Account'

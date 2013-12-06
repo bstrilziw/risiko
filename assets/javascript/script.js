@@ -1,4 +1,5 @@
 var headerMenu;
+var phase = 0;
 
 $(document).ready( function() {
     headerMenu = $('#menu');
@@ -14,14 +15,29 @@ $(document).ready( function() {
         // Flächenfarbe des Landes zufällig setzen
         $(this).css('fill', randColor());
 		
+		if (phase === 0) {
+			// Einheiten verteilen
+			$.ajax({
+				type: "POST",
+				url: "/update/new_unit",
+				data: {data: JSON.stringify( new Array(
+							{land_name: ($(this).attr('id')).slice(5, $(this).attr('id').length),
+								unit_count: 1}
+						) ) }
+			});
+		}
+    });
+	
+	$('#button_next_phase').click( function() {
+		if (++phase === 4) {
+			phase = 0;
+		}
+		updatePhaseText();
 		$.ajax({
 			type: "POST",
-			url: "/update/new_unit",
-			data: {data: JSON.stringify( new Array(
-						{land_name: ($(this).attr('id')).slice(5, $(this).attr('id').length)}
-						) ) }
+			url: "/update/phase"
 		});
-    });
+	});
     
     // öffnet das Menü
     headerMenu.find('span').bind('click', function() {
@@ -37,9 +53,7 @@ $(document).ready( function() {
     });
 	
 	// Update request alle 5 Sekunden
-	setTimeout( function(){
-		update();
-	} , 5000);
+	update();
 });
 
 function update() {
@@ -47,20 +61,37 @@ function update() {
 		type: "GET",
 		url: "/update",
 		success: function(data) {
-			data = JSON.parse(data);
-			console.log(data);
 			// Daten verarbeiten
+			data = JSON.parse(data);
+			// Laender aktualisieren
 			var laender = data.mapdata;
-			console.log(laender);
 			for (var i = 0; i < laender.length; i++) {
 				var land = laender[i];
 				$('#text_' + land.name).children().last().text(land.unit_count);
 			}
+			// Phase aktualisieren
+			phase = data.phase;
+			updatePhaseText();
+			// Aktiver-Spieler-Beschriftung anpassen
+			$('#active_player').text("Aktiver Spieler: " + data.active_player);
 		}
 	});
 	setTimeout( function() {
 		update();
 	}, 5000);
+}
+
+function updatePhaseText() {
+	switch(phase) {
+		case 0: $('#phase').text("Verteilen Sie ihre Einheiten.");
+		break;
+		case 1: $('#phase').text("Angriff durchfuehren.");
+		break;
+		case 2: $('#phase').text("Einheiten verschieben.");
+		break;
+		case 3: $('#phase').text("Warten...");
+		break;
+	}
 }
 
 function intToColor(int) {
@@ -78,6 +109,7 @@ function intToColor(int) {
         default: return 'grey';
     }
 }
+
 function randColor(currentColor) {
     var newColor = currentColor;
     while (newColor === currentColor) {

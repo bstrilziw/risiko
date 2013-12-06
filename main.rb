@@ -22,20 +22,27 @@ end
 
 get '/list' do
 	redirect '/' unless logged_in?
-	@games = Game.all()#running: false) # hier pruefen ob das Spiel bereits laeuft
+	@games = Game.all(running: false, private: false) # hier pruefen ob das Spiel bereits laeuft
 	slim :game_list
 end
 
 get '/lobby' do
 	redirect '/login' unless logged_in?
-	@players = Account.all(game: get_game)
+	account = get_account
+	redirect '/list' if account.game.nil?
+	redirect '/game' if account.game.running
+	
+	@players = Account.all(game: account.game)
 	slim :lobby
 end
 
 get '/game' do
   redirect '/login' unless logged_in?
+	account = get_account
+	redirect '/list' if account.game.nil?
+	redirect '/lobby' unless account.game.running
 	
-	laender = Country.all(game: get_game)
+	laender = Country.all(game: account.game)
 	# TODO DRY?!
 	alaska = laender.first(name: "alaska")
 	@alaska = alaska.unit_count if !alaska.nil?
@@ -61,8 +68,25 @@ end
 get '/game/create' do
 	redirect '/login' unless logged_in?
 	# TODO: Spieleinstellungen vornehmen lassen? (game_create.slim)
-	redirect '/list' unless get_account.game.nil?
-	get_account.update(game: Game.create())
+	account = get_account
+	unless account.game.nil?
+		redirect '/lobby' unless account.game.running
+		redirect '/game'
+	end
+	
+	slim :game_create
+end
+
+post '/game/create' do
+	redirect '/login' unless logged_in?
+	account = get_account
+	unless account.game.nil?
+		redirect '/lobby' unless account.game.running
+		redirect '/game'
+	end
+	redirect '/game/create' if params[:game_name].nil? || params[:game_name].empty?
+	
+	account.update(game: Game.create(name: params[:game_name]))
 	redirect '/lobby'
 end
 
@@ -116,6 +140,7 @@ get '/update' do # Spieldaten abfragen
 	game = get_game
 	active_player = Account.get(game.active_player)
 	active_player = active_player.name if !active_player.nil?
+	phase = game.phase
 	
 	# Laenderinformationen
 	countries = Country.all(game: game)
@@ -191,15 +216,17 @@ get '/logout' do
 end
 
 get '/account/new' do #Neue Accounts
-	redirect '/' unless logged_in?
-	@account = Account.new # UNUSED
 	slim :new_account
 end
 
 post '/account/new' do
 	if params[:login_name] != nil && params[:login_pass] != nil && params[:name] != nil
-		# TODO pruefen, ob login_name bereits vergeben ist
-		account = Account.create(login_name: params[:login_name], password: params[:login_pass], name: params[:name])
+		# pruefen, ob login_name bereits vergeben ist
+		if Account.first(login_name: params[:login_name]).nil? && Account.first(name: params[:name]).nil?
+			account = Account.create(login_name: params[:login_name], password: params[:login_pass], name: params[:name])
+		else
+			halt 500, "Name bereits vergeben!"
+		end
 	end
 	if account.saved?
 		redirect to('/')

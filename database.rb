@@ -24,6 +24,7 @@ end
 class Game
 	include DataMapper::Resource
 	property :id, Serial
+	property :name, String
 	property :phase, Integer, default: 0
 	property :running, Boolean, default: false
 	property :private, Boolean, default: false

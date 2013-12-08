@@ -90,10 +90,20 @@ post '/game/create' do
 	redirect '/lobby'
 end
 
+get '/game/join/:game_name' do	
+	redirect '/list' if params[:game_name].nil?
+	game = Game.first(name: params[:game_name])
+	get_account.update(game: game)
+	
+	redirect '/lobby'
+end
+
 get '/game/start' do
 	redirect '/login' unless logged_in?
 	game = get_game
 	redirect '/game' if game.running
+	# auf Berechtigung zum Starten ueberpruefen
+	redirect '/lobby' if get_account != game.players.first
 	game.update(running: true, active_player: game.players.first)
 	# Felder erstellen
 	felder_namen = [
@@ -115,7 +125,7 @@ get '/game/start' do
 	felder_namen.each do |feld_name|
 		Country.create(name: feld_name, unit_count: 0, game: game)
 	end
-	redirect 'game'
+	redirect '/game'
 end
 
 get '/game/leave' do
@@ -158,19 +168,21 @@ get '/update' do # Spieldaten abfragen
 	halt 200, {active_player: active_player, mapdata: laender, phase: phase}.to_json
 end
 
-post '/update/phase' do # Spieler hat am Ende einer Phase auf Bestätigen geklickt
+post '/update/phase' do # Spieler hat am Ende einer Phase auf Bestaetigen geklickt
 	account = get_account
 	game = get_game
 	halt 500, "Sie sind nicht an der Reihe." unless account == game.active_player
-	if game.active_player == game.players.last
-		game.update(active_player: game.players.first)
-	else
-		index = game.players.index(game.active_player)
-		game.update(active_player: game.players[index+1])
-	end
-	halt 500, "Fehler beim Speichern." unless game.saved?
 	game.phase += 1
-	game.phase = 0 if game.phase == 3
+	if game.phase == 3
+		game.phase = 0
+		# naechsten Spieler waehlen
+		if game.active_player == game.players.last
+			game.active_player = game.players.first
+		else
+			index = game.players.index(game.active_player)
+			game.active_player = game.players[index+1]
+		end
+	end
 	game.save
 	halt 500, "Fehler beim Speichern." unless game.saved?
 	status 200
@@ -181,6 +193,9 @@ post '/update/new_unit' do
 	# Zu viele Fehlerabfragen eingebaut ?
 	halt 500, "Fehler: ungueltige Daten." if params[:data].nil?
 	halt 500, "Fehler: Sie sind nicht eingeloggt." unless logged_in?
+	# pruefen ob Spieler an der Reihe ist
+	account = get_account
+	halt 500, "Sie sind nicht an der Reihe." unless get_account == get_game.active_player
 	laender = Country.all(game: get_game)
 	halt 500, "Fehler: Es gibt keine Laender in diesem Spiel." if laender.empty?
 	parsed_data = JSON.parse(params[:data])
@@ -193,7 +208,7 @@ post '/update/new_unit' do
 		land.unit_count += data["unit_count"]
 		land.save
 	end
-	""
+	"" # sinatra kann hier mit einem Hash nichts anfangen
 end
 
 get '/login' do

@@ -9,7 +9,7 @@ class Account
 	property :password, String
 	property :name, String
 	has n, :countries, 'Country'
-	belongs_to :game, :required => false
+	belongs_to :game, :required => false # -> game.players
 end
 
 class Country
@@ -28,7 +28,7 @@ class Game
 	property :phase, Integer, default: 0 # 0: Verteilen; 1: Angreifen; 2: Verschieben;
 	property :running, Boolean, default: false
 	property :private, Boolean, default: false
-  has 1, :active_player, 'Account'
+  belongs_to :active_player, 'Account', required: false
 	has n, :players, 'Account'
   has n, :countries, 'Country'
 end

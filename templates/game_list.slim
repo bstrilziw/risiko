@@ -5,7 +5,7 @@ ul
 	- for game in @games ||= [] do
 		- i += 1
 		/ Spielbeschreibung ausgeben
-		li: a href="#" = i.to_s + ". " + game.name.to_s + " [Besitzer: " + game.players.first.name.to_s + "] [Spieler: " + game.players.length.to_s + "/6]"
+		li: a href=="/game/join/#{game.name.to_s}" = i.to_s + ". " + game.name.to_s + " [Besitzer: " + game.players.first.name.to_s + "] [Spieler: " + game.players.length.to_s + "/6]"
 br
 form method="GET" action="/game/create"
 	button#button_create_game type="submit" Spiel erstellen

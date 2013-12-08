@@ -30,6 +30,15 @@ $(document).ready( function() {
 			// Beschriftung updaten
 			var text_element = $('#text_' + $(this).attr('id').slice(5, $(this).attr('id').length) ).children().last();
 			text_element.text(parseInt(text_element.text()) + 1);
+			// automatisch in die nächste Phase wechseln, sobald alle Einheiten aufgebraucht sind
+			if (placeable_units === 0) {
+				phase++;
+				updatePhaseText();
+				$.ajax({
+					type: "POST",
+					url: "/update/phase"
+				});
+			}
 		}
     });
 	

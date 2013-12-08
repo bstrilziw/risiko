@@ -129,6 +129,11 @@ get '/game/start' do
 	felder_namen.each do |feld_name|
 		Country.create(name: feld_name, unit_count: 0, game: game)
 	end
+	# verfuegbare Einheiten berechnen
+	game.placeable_units = game.active_player.countries.length / 3
+	game.placeable_units = 3 if game.placeable_units < 3
+	game.save
+	halt 500, "Fehler beim Speichern." unless game.saved?
 	redirect '/game'
 end
 
@@ -156,6 +161,8 @@ get '/update' do # Spieldaten abfragen
 	active_player = active_player.name if !active_player.nil?
 	phase = game.phase
 	phase = 3 if game.active_player != get_account
+	placeable_units = game.placeable_units
+	placeable_units = 0 if game.active_player != get_account
 	
 	# Laenderinformationen
 	countries = Country.all(game: game)
@@ -169,7 +176,8 @@ get '/update' do # Spieldaten abfragen
 		laender << {owner: owner, name: land.name, unit_count: land.unit_count}
 	end
 	
-	halt 200, {active_player: active_player, mapdata: laender, phase: phase}.to_json
+	halt 200, {active_player: active_player, mapdata: laender, phase: phase,
+					placeable_units: placeable_units}.to_json
 end
 
 post '/update/phase' do # Spieler hat am Ende einer Phase auf Bestaetigen geklickt
@@ -187,6 +195,11 @@ post '/update/phase' do # Spieler hat am Ende einer Phase auf Bestaetigen geklic
 			game.active_player = game.players[index+1]
 		end
 	end
+	if game.phase == 0
+		# verfuegbare Einheiten berechnen
+		game.placeable_units = account.countries.length / 3
+		game.placeable_units = 3 if game.placeable_units < 3
+	end
 	game.save
 	halt 500, "Fehler beim Speichern." unless game.saved?
 	status 200
@@ -199,18 +212,22 @@ post '/update/new_unit' do
 	halt 500, "Fehler: Sie sind nicht eingeloggt." unless logged_in?
 	# pruefen ob Spieler an der Reihe ist
 	account = get_account
-	halt 500, "Sie sind nicht an der Reihe." unless get_account == get_game.active_player
-	laender = Country.all(game: get_game)
+	game = get_game
+	halt 500, "Sie sind nicht an der Reihe." unless account == game.active_player
+	halt 500, "Es wurden bereits alle verfuegbaren Einheiten verteilt." if game.placeable_units <= 0
+	laender = Country.all(game: game)
 	halt 500, "Fehler: Es gibt keine Laender in diesem Spiel." if laender.empty?
 	parsed_data = JSON.parse(params[:data])
 	halt 500, "Fehler: keine gueltigen Informationen." if parsed_data.class.to_s != "Array"
 	parsed_data.each do |data|
 		halt 500 if !data.key?("land_name")
 		halt 500 if !data.key?("unit_count")
+		halt 500, "Nicht genuegend Einheiten verfuegbar." if data["unit_count"] > game.placeable_units
 		land = laender.first(name: data["land_name"]) 
 		halt 500, "Fehler: Es gibt dieses Land nicht: " + data["land_name"] if land.nil?
 		land.unit_count += data["unit_count"]
 		land.save
+		game.update(placeable_units: game.placeable_units - data["unit_count"])
 	end
 	"" # sinatra kann hier mit einem Hash nichts anfangen
 end

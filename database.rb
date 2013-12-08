@@ -25,6 +25,7 @@ class Game
 	include DataMapper::Resource
 	property :id, Serial
 	property :name, String
+	property :placeable_units, Integer, default: 0 # in Phase 0 verfuegbare Einheiten (berechnet in /update/phase)
 	property :phase, Integer, default: 0 # 0: Verteilen; 1: Angreifen; 2: Verschieben;
 	property :running, Boolean, default: false
 	property :private, Boolean, default: false

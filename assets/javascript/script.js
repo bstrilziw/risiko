@@ -1,5 +1,6 @@
 var headerMenu;
 var phase = 0;
+var placeable_units = 0;
 
 $(document).ready( function() {
     headerMenu = $('#menu');
@@ -15,20 +16,26 @@ $(document).ready( function() {
         // Flächenfarbe des Landes zufällig setzen
         $(this).css('fill', randColor());
 		
-		if (phase === 0) {
+		if (phase === 0 && placeable_units > 0) {
 			// Einheiten verteilen
 			$.ajax({
 				type: "POST",
 				url: "/update/new_unit",
 				data: {data: JSON.stringify( new Array(
-							{land_name: ($(this).attr('id')).slice(5, $(this).attr('id').length),
+							{land_name: $(this).attr('id').slice(5, $(this).attr('id').length),
 								unit_count: 1}
 						) ) }
 			});
+			placeable_units--;
+			// Beschriftung updaten
+			var text_element = $('#text_' + $(this).attr('id').slice(5, $(this).attr('id').length) ).children().last();
+			text_element.text(parseInt(text_element.text()) + 1);
 		}
     });
 	
 	$('#button_next_phase').click( function() {
+		if (phase === 3) // Button sollte disabled werden
+			return;
 		if (++phase === 4) {
 			phase = 0;
 		}
@@ -74,6 +81,7 @@ function update() {
 			updatePhaseText();
 			// Aktiver-Spieler-Beschriftung anpassen
 			$('#active_player').text("Aktiver Spieler: " + data.active_player);
+			placeable_units = data.placeable_units;
 		}
 	});
 	setTimeout( function() {

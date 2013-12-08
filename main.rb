@@ -93,7 +93,11 @@ end
 get '/game/join/:game_name' do	
 	redirect '/list' if params[:game_name].nil?
 	game = Game.first(name: params[:game_name])
-	get_account.update(game: game)
+	halt 500, "Dises Spiel existiert nicht." if game.nil?
+	account = get_account
+	redirect '/lobby' if account.game == game
+	halt 500, "Sie sind bereits in einem Spiel." unless account.game.nil?
+	account.update(game: game)
 	
 	redirect '/lobby'
 end

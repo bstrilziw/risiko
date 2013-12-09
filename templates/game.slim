@@ -90,18 +90,19 @@ svg#worldmap xmlns="http://www.w3.org/2000/svg" version="1.1" height="800" width
 		text.land_text#text_quebec
 			tspan x="350" y="250" =="Quebec"
 			tspan x="107" y="165" ==@quebec
+
+div class="chatbox"	
+	div id="posts" 
+		- if @posts.any?
+			ul#posts
+				-@posts.each do |post|
+					li 
+						| [#{post.time.strftime("%H:%M") if post.time}] #{post.writer.name}: #{post.text}
+		- else
+			p No Posts have been created yet!
 			
-div id="posts" 
-	- if @posts.any?
-		ul#posts
-			-@posts.each do |post|
-				li 
-					| [#{post.time.strftime("%H:%M") if post.time}] #{post.writer.name}: #{post.text}
-	- else
-		p No Posts have been created yet!
-		
-div id="text" style="max-width: 383px"
-	form onsubmit=" return send(this.message)"
-		input#message type="text" name="message" autocomplete="off"
-		input#chat_button type="submit" value="Absenden"
-button.button#toggle TOGGLE			
+	div id="chatInput"
+		form onsubmit=" return send(this.message)"
+			input#message type="text" name="message" autocomplete="off"
+			input#chat_button type="submit" value="Absenden"
+button.button#toggle Chat		

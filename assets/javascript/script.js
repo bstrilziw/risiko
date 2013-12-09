@@ -72,13 +72,13 @@ $(document).ready( function() {
 	update();
 	
 	// Chat-Toggle
-	$(".button").click(function() {
-        $("#posts").slideToggle(500);
-		$("#text").slideToggle(500);
-
+	$(".button#toggle").click(function() {
+		$(".chatbox").slideToggle(200);
+		$("#posts").animate({ scrollTop: 10000 }, 'fast');
     });
+	$(".chatbox").toggle();
 	timer();
-	$('#posts').animate({ scrollTop: 10000 }, 'fast');
+
 });
 
 // Timer für Chat-Update

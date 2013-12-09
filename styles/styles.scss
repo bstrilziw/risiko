@@ -6,6 +6,7 @@
 @import 'header';
 @import 'content';
 @import 'map';
+@import 'chat';
 
 /* Styles */
 
@@ -14,6 +15,8 @@ html {
 }
 
 body {
+	-moz-user-select: -moz-none;
+	-webkit-user-select: none;
 	font-family: $main-font-family;
 	font-size: 14px;
 	line-height: 1.5em;

@@ -95,9 +95,8 @@ div id="posts"
 	- if @posts.any?
 		ul#posts
 			-@posts.each do |post|
-				-@writer = Writer.all(:id => post.writer_id).first
 				li 
-					| [#{post.time.strftime("%H:%M") if post.time}] #{@writer.author}: #{post.text}
+					| [#{post.time.strftime("%H:%M") if post.time}] #{post.writer.name}: #{post.text}
 	- else
 		p No Posts have been created yet!
 		
@@ -105,5 +104,4 @@ div id="text" style="max-width: 383px"
 	form onsubmit=" return send(this.message)"
 		input#message type="text" name="message" autocomplete="off"
 		input#chat_button type="submit" value="Absenden"
-	a href="/logout" Logout	
 button.button#toggle TOGGLE			

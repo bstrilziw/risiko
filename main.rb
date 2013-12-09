@@ -62,6 +62,7 @@ get '/game' do
 	@nordwest_territorium = nordwest_territorium.unit_count if !nordwest_territorium.nil?
 	quebec = laender.first(name: "quebec")
 	@quebec = quebec.unit_count if !quebec.nil?
+	
 	@posts = Post.all().last(20)
   slim :game
 end
@@ -141,9 +142,21 @@ end
 get '/game/leave' do
 	redirect '/login' unless logged_in?
 	# Spiel <-> Spieler Verbindung trennen
-	game_id = get_game.id
-	get_account.update(game: nil)
-	game = Game.get(game_id)
+	account = get_account
+	game = get_game
+	# bin ich an der Reihe?
+	if game.active_player == account
+		if game.active_player == game.players.last
+			game.active_player = game.players.first
+		else
+			index = game.players.index(game.active_player)
+			game.active_player = game.players[index+1]
+		end
+	end
+	game.save
+	halt 500, "Fehler beim Speichern." unless game.saved?
+	account.update(game: nil)
+	game = Game.get(game.id)
 	# Spiel loeschen, wenn leer
 	redirect '/list' unless game.players.empty?
 	laender = Country.all(game: game)
@@ -290,16 +303,17 @@ post '/account/new' do
 		slim "p.fehler Account konnte nicht erstellt werden."
 	end	
 end
+
 post '/chat' do
-	if params[:message].empty?
-	@post = Post.create(text: params[:message], writer_id: session[:id], time: Time.new) # Writer_id muss dem momentanen Schreiber noch angepasst werden.
-	# redirect to('/chat')
+	if !params[:message].empty?
+	@post = Post.create(text: params[:message], writer: get_account, time: Time.new)
 	end
 end
+
 get '/updateChat' do
 	messages = Array.new
 	Post.all().last(20).each do |post|
-		messages << "[#{post.time.strftime('%H:%M') if post.time}] #{post.writer.author}: #{post.text}"
+		messages << "[#{post.time.strftime('%H:%M') if post.time}] #{post.writer.name}: #{post.text}"
 	end
 	messages.to_json
 end

@@ -62,6 +62,7 @@ get '/game' do
 	@nordwest_territorium = nordwest_territorium.unit_count if !nordwest_territorium.nil?
 	quebec = laender.first(name: "quebec")
 	@quebec = quebec.unit_count if !quebec.nil?
+	@posts = Post.all().last(20)
   slim :game
 end
 
@@ -288,4 +289,17 @@ post '/account/new' do
 	else
 		slim "p.fehler Account konnte nicht erstellt werden."
 	end	
+end
+post '/chat' do
+	if params[:message].empty?
+	@post = Post.create(text: params[:message], writer_id: session[:id], time: Time.new) # Writer_id muss dem momentanen Schreiber noch angepasst werden.
+	# redirect to('/chat')
+	end
+end
+get '/updateChat' do
+	messages = Array.new
+	Post.all().last(20).each do |post|
+		messages << "[#{post.time.strftime('%H:%M') if post.time}] #{post.writer.author}: #{post.text}"
+	end
+	messages.to_json
 end

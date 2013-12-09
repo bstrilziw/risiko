@@ -70,8 +70,37 @@ $(document).ready( function() {
 	
 	// Update request alle 5 Sekunden
 	update();
+	
+	// Chat-Toggle
+	$(".button").click(function() {
+        $("#posts").slideToggle(500);
+		$("#text").slideToggle(500);
+
+    });
+	timer();
+	$('#posts').animate({ scrollTop: 10000 }, 'fast');
 });
 
+// Timer für Chat-Update
+function timer() {
+	updateChat();
+	setTimeout(function(){
+		timer();
+	}, 5000);
+}
+function updateChat() {
+	$.ajax({
+		type: "GET",
+		url: "/updateChat",
+		success: function(data){
+			data = JSON.parse(data);
+			$("#posts").empty();
+			for (var i = 0; i < data.length; i++){
+				$("#posts").append("<li>" + data[i] + "</li>");
+			}
+		}
+	});
+};
 function update() {
 	$.ajax({
 		type: "GET",
@@ -134,3 +163,15 @@ function randColor(currentColor) {
     }
     return newColor;
 }
+
+function send(textbox) {
+	$.ajax({
+		type: "POST",
+		url: "/chat",
+		data:{message: textbox.value}
+	});	
+	textbox.value = "";
+	textbox.focus();
+	updateChat();
+	return false;
+};

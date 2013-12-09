@@ -12,6 +12,16 @@ class Account
 	belongs_to :game, :required => false # -> game.players
 end
 
+class Post
+	include DataMapper::Resource
+	
+	property :id, Serial
+	property :text, String
+	property :time, DateTime
+	
+	belongs_to :writer, 'Account'
+end
+
 class Country
 	include DataMapper::Resource
 	property :id, Serial
@@ -38,4 +48,5 @@ DataMapper.finalize
 DataMapper.auto_migrate!
 
 # Testdatensaetze
-Account.create(login_name: "admin", password: "1234", name: "ADM1N")
+Account.create(login_name: "admin", password: "", name: "ADM1N")
+Account.create(login_name: "user", password: "", name: "USER")

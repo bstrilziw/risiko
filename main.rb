@@ -113,6 +113,23 @@ get '/game/start' do
 	# auf Berechtigung zum Starten ueberpruefen
 	redirect '/lobby' if get_account != game.players.first
 	game.update(running: true, active_player: game.players.first)
+	
+	# Spieler auflisten und verbleibende Anzahl der Laender pro Spieler speichern
+	players = Array.new
+	game.players.each do |player|
+		players << {account: player, laender_anzahl: 42 / game.players.length}
+	end
+	# verbleibende Laender verteilen
+	anzahl_laender = 42 % players.length
+	anzahl_spieler = players.length
+	players.each do |player|
+		if rand(anzahl_spieler) < anzahl_laender
+			anzahl_laender -= 1
+			player[:laender_anzahl] += 1
+		end
+		anzahl_spieler -= 1
+	end
+	
 	# Felder erstellen
 	felder_namen = [
 			# Nord-Amerika
@@ -130,9 +147,25 @@ get '/game/start' do
 			"irkutsk", "mongolei", "japan", "china", "indien", "siam",
 			# Ozeanien
 			"indonesien", "neu-guinea", "ost-australien", "west-australien"]
+		
+	remaining = 42
 	felder_namen.each do |feld_name|
-		Country.create(name: feld_name, unit_count: 0, game: game)
+		# Zugehoerigkeit ermitteln
+		random = rand(remaining) + 1
+		remaining -= 1;
+		laender_anzahl = 0
+		owner = nil
+		players.each do |player|
+			laender_anzahl += player[:laender_anzahl]
+			if random <= laender_anzahl
+				owner = player[:account]
+				player[:laender_anzahl] -= 1
+				break
+			end
+		end
+		Country.create(name: feld_name, unit_count: 1, game: game, account: owner)
 	end
+	
 	# verfuegbare Einheiten berechnen
 	game.placeable_units = game.active_player.countries.length / 3
 	game.placeable_units = 3 if game.placeable_units < 3
@@ -185,7 +218,7 @@ get '/update' do # Spieldaten abfragen
 	laender = []
 	countries.each do |land|
 		land.save;
-		owner = Account.get(land.account)
+		owner = land.account
 		owner = owner.name if !owner.nil?
 		laender << {owner: owner, name: land.name, unit_count: land.unit_count}
 	end

@@ -64,6 +64,8 @@ get '/game' do
 	@quebec = quebec.unit_count if !quebec.nil?
 	
 	@posts = Post.all().last(20)
+	
+	@players = account.game.players
   slim :game
 end
 
@@ -166,7 +168,7 @@ get '/game/leave' do
 end
 
 get '/update' do # Spieldaten abfragen
-	halt 500 unless logged_in?
+	halt 500, "Keine Informationen verfuegbar." unless logged_in?
 	halt 404 if !request.xhr? # kein AJAX Aufruf?
 	
 	# Allgemeine Spielinformationen
@@ -182,14 +184,12 @@ get '/update' do # Spieldaten abfragen
 	countries = Country.all(game: game)
 	laender = []
 	countries.each do |land|
-		# zu testzwecken wird hier immer eine Einheit hinzugefuegt
-		#land.unit_count += 1;
 		land.save;
 		owner = Account.get(land.account)
 		owner = owner.name if !owner.nil?
 		laender << {owner: owner, name: land.name, unit_count: land.unit_count}
 	end
-	
+		
 	halt 200, {active_player: active_player, mapdata: laender, phase: phase,
 					placeable_units: placeable_units}.to_json
 end

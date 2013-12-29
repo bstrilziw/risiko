@@ -1,18 +1,23 @@
 var headerMenu;
 var phase = 0;
 var placeable_units = 0;
+var laender;
 
 $(document).ready( function() {
     headerMenu = $('#menu');
 	
-	// Farbwechsel der Länder
-    $('.land').click( function() {
-        // Land hervorheben
+	$('.land').mouseenter( function() {
+		// Land hervorheben
         $(this).appendTo($('#images'));
-        // Glüheffekt von allen Ländern entfernen
+		// Glüheffekt von allen Ländern entfernen
         $('.land_selected').attr('class', 'land');
         // und für das gewählte hinzufügen
         $(this).attr("class", "land land_selected");
+	});
+	
+	// Farbwechsel der Länder
+    $('.land').click( function() {
+        
         // Flächenfarbe des Landes zufällig setzen
         $(this).css('fill', randColor());
 		
@@ -109,10 +114,11 @@ function update() {
 			// Daten verarbeiten
 			data = JSON.parse(data);
 			// Laender aktualisieren
-			var laender = data.mapdata;
+			laender = data.mapdata;
 			for (var i = 0; i < laender.length; i++) {
 				var land = laender[i];
 				$('#text_' + land.name).children().last().text(land.unit_count);
+				$('#land_' + land.name).css('fill', getColorToName(land.owner));
 			}
 			// Phase aktualisieren
 			phase = data.phase;
@@ -138,6 +144,16 @@ function updatePhaseText() {
 		case 3: $('#phase').text("Warten...");
 		break;
 	}
+}
+
+function getColorToName(name) {
+	var color = "#888";
+	$('#playerlist ul li').each( function() {
+		if ( $(this).children().first().text() === name ) {
+			color = $(this).children().last().text().trim();
+		}
+	});
+	return color;
 }
 
 function intToColor(int) {

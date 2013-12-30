@@ -29,6 +29,7 @@ class Country
 	property :unit_count, Integer
 	belongs_to :game
 	belongs_to :account, :required => false
+	has n, :neighbors, 'Country', :through => Resource
 end
 
 class Game

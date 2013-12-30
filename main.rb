@@ -114,12 +114,73 @@ get '/game/start' do
 	redirect '/lobby' if get_account != game.players.first
 	game.update(running: true, active_player: game.players.first)
 	
+	# Laender erstellen
+	# Landname => {country => Objekt des Landes aus der DB,
+	#						neighbors => Namen der Nachbarn}
+	laender_beziehungen = {
+			# Nord-Amerika
+			"alaska" => {country: nil, neighbors: ["alberta", "nordwest-territorium", "kamtschatka"]},
+			"alberta" => {country: nil, neighbors: ["alaska", "nordwest-territorium", "weststaaten", "ontario"]},
+			"weststaaten" => {country: nil, neighbors: ["alberta", "mittel-amerika", "ontario", "oststaaten"]},
+			"mittel-amerika" => {country: nil, neighbors: ["weststaaten", "oststaaten", "venezuela"]},
+			"nordwest-territorium" => {country: nil, neighbors: ["alaska", "alberta", "groenland"]},
+			"ontario" => {country: nil, neighbors: ["nordwest-territorium", "alberta", "weststaaten",
+										"oststaaten", "quebec", "groenland"]},
+			"oststaaten" => {country: nil, neighbors: ["weststaaten", "mittel-amerika", "ontario", "quebec"]},
+			"quebec" => {country: nil, neighbors: ["ontario", "oststaaten", "groenland"]},
+			"groenland" => {country: nil, neighbors: ["nordwest-territorium", "ontario", "quebec", "island"]},
+			
+			# Süd-Amerika
+			"venezuela" => {country: nil, neighbors: ["mittel-amerika", "peru", "brasilien"]},
+			"peru" => {country: nil, neighbors: ["venezuela", "brasilien", "argentinien"]},
+			"brasilien" => {country: nil, neighbors: ["venezuela", "peru", "argentinien", "nordwest-afrika"]},
+			"argentinien" => {country: nil, neighbors: ["peru", "brasilien"]},
+			
+			# Afrika
+			"nordwest-afrika" => {country: nil, neighbors: ["brasilien", "aegypten", "ost-afrika", "kongo", "west-europa"]},
+			"aegypten" => {country: nil, neighbors: ["nordwest-afrika", "ost-afrika", "mittlerer-osten"]},
+			"ost-afrika" => {country: nil, neighbors: ["nordwest-afrika", "aegypten", "kongo", "sued-afrika", "mittlerer-osten"]},
+			"kongo" => {country: nil, neighbors: ["nordwest-afrika", "ost-afrika", "sued-afrika"]},
+			"sued-afrika" => {country: nil, neighbors: ["ost-afrika", "kongo"]},
+			"madagaskar" => {country: nil, neighbors: ["ost-afrika", "sued-afrika"]},
+			
+			# Europa
+			"island" => {country: nil, neighbors: ["groenland", "skandinavien", "gross-britannien"]},
+			"skandinavien" => {country: nil, neighbors: ["island", "ukraine", "gross-britannien", "mittel-europa"]},
+			"ukraine" => {country: nil, neighbors: ["skandinavien", "mittel-europa", "mittlerer-osten", "afghanistan", "ural"]},
+			"gross-britannien" => {country: nil, neighbors: ["island", "skandinavien", "mittel-europa", "west-europa"]},
+			"mittel-europa" => {country: nil, neighbors: ["skandinavien", "ukraine", "gross-britannien", "west-europa"]},
+			"west-europa" => {country: nil, neighbors: ["nordwest-afrika", "gross-britannien", "mittel-europa"]},
+			"sued-europa" => {country: nil, neighbors: ["nordwest-afrika", "aegypten", "ukraine", "mittel-europa", "west-europa", "mittlerer-osten"]},
+			
+			# Asien
+			"mittlerer-osten" => {country: nil, neighbors: ["aegypten", "ost-afrika", "ukraine", "afghanistan", "indien"]},
+			"afghanistan" => {country: nil, neighbors: ["ukraine", "mittlerer-osten", "ural", "china", "indien"]},
+			"ural" => {country: nil, neighbors: ["ukraine", "afghanistan", "sibirien", "china"]},
+			"sibirien" => {country: nil, neighbors: ["ural", "jakutien", "irkutsk", "mongolei", "china"]},
+			"jakutien" => {country: nil, neighbors: ["sibirien", "irkutsk"]},
+			"kamtschatka" => {country: nil, neighbors: ["alaska", "jakutien", "irkutsk", "mongolei", "japan"]},
+			"irkutsk" => {country: nil, neighbors: ["sibirien", "jakutien", "mongolei"]},
+			"mongolei" => {country: nil, neighbors: ["sibirien", "irkutsk", "japan", "china"]},
+			"japan" => {country: nil, neighbors: ["mongolei", "china"]},
+			"china" => {country: nil, neighbors: ["afghanistan", "ural", "sibirien", "mongolei", "japan", "indien", "siam"]},
+			"indien" => {country: nil, neighbors: ["mittlerer-osten", "afghanistan", "china", "siam"]},
+			"siam" => {country: nil, neighbors: ["china", "indien", "indonesien"]},
+			
+			# Ozeanien
+			"indonesien" => {country: nil, neighbors: ["siam", "neu-guinea", "ost-australien", "west-australien"]},
+			"neu-guinea" => {country: nil, neighbors: ["indonesien", "ost-australien"]},
+			"ost-australien" => {country: nil, neighbors: ["indonesien", "neu-guinea", "west-australien"]},
+			"west-australien" => {country: nil, neighbors: ["indonesien", "ost-australien"]}
+	}
+	
 	# Spieler auflisten und verbleibende Anzahl der Laender pro Spieler speichern
 	players = Array.new
 	game.players.each do |player|
 		players << {account: player, laender_anzahl: 42 / game.players.length}
 	end
-	# verbleibende Laender verteilen
+	
+	# restliche Laender verteilen
 	anzahl_laender = 42 % players.length
 	anzahl_spieler = players.length
 	players.each do |player|
@@ -130,26 +191,10 @@ get '/game/start' do
 		anzahl_spieler -= 1
 	end
 	
-	# Felder erstellen
-	felder_namen = [
-			# Nord-Amerika
-			"alaska", "alberta", "weststaaten", "mittel-amerika", 
-			"nordwest-territorium", "ontario", "oststaaten", "quebec", "groenland",
-			# Süd-Amerika
-			"venezuela", "peru", "brasilien", "argentinien",
-			# Afrika
-			"nordwest-afrika", "aegypten", "ost-afrika", "kongo", "sued-afrika", "madagaskar",
-			# Europa
-			"island", "skandinavien", "ukraine", "gross-britannien", "mittel-europa",
-			"west-europa", "sued-europa",
-			# Asien
-			"mittlerer-osten", "afghanistan", "ural", "sibirien", "jakutien", "kamtschatka",
-			"irkutsk", "mongolei", "japan", "china", "indien", "siam",
-			# Ozeanien
-			"indonesien", "neu-guinea", "ost-australien", "west-australien"]
-		
+	# Länder zufällig verteilen
+	# und Country Objekte in der Datenbank erzeugen
 	remaining = 42
-	felder_namen.each do |feld_name|
+	laender_beziehungen.each do |name, data|
 		# Zugehoerigkeit ermitteln
 		random = rand(remaining) + 1
 		remaining -= 1;
@@ -163,9 +208,16 @@ get '/game/start' do
 				break
 			end
 		end
-		Country.create(name: feld_name, unit_count: 1, game: game, account: owner)
+		data[:country] = Country.create(name: name, unit_count: 1, game: game, account: owner)
 	end
-	
+
+	# Nachbarschaftsbeziehungen speichern
+	laender_beziehungen.each do |name, data|
+		data[:neighbors].each do |neighbor|
+			CountryCountry.create(country_id: data[:country].id, neighbor_id: laender_beziehungen[neighbor][:country].id)
+		end
+	end
+
 	# verfuegbare Einheiten berechnen
 	game.placeable_units = game.active_player.countries.length / 3
 	game.placeable_units = 3 if game.placeable_units < 3

@@ -219,8 +219,7 @@ get '/game/start' do
 	end
 
 	# verfuegbare Einheiten berechnen
-	game.placeable_units = game.active_player.countries.length / 3
-	game.placeable_units = 3 if game.placeable_units < 3
+	game.calculate_units
 	game.save
 	halt 500, "Fehler beim Speichern." unless game.saved?
 	redirect '/game'
@@ -233,12 +232,7 @@ get '/game/leave' do
 	game = get_game
 	# bin ich an der Reihe?
 	if game.active_player == account
-		if game.active_player == game.players.last
-			game.active_player = game.players.first
-		else
-			index = game.players.index(game.active_player)
-			game.active_player = game.players[index+1]
-		end
+		game.set_next_player_active
 	end
 	game.save
 	halt 500, "Fehler beim Speichern." unless game.saved?
@@ -246,8 +240,11 @@ get '/game/leave' do
 	game = Game.get(game.id)
 	# Spiel loeschen, wenn leer
 	redirect '/list' unless game.players.empty?
-	laender = Country.all(game: game)
-	laender.each { |land| land.destroy }
+	game.countries.each do |country|
+		country.country_countries.destroy
+		country.destroy
+	end
+	game.reload
 	game.destroy
 	redirect '/list'
 end
@@ -287,12 +284,7 @@ post '/update/phase' do # Spieler hat am Ende einer Phase auf Bestaetigen geklic
 	if game.phase == 3
 		game.phase = 0
 		# naechsten Spieler waehlen
-		if game.active_player == game.players.last
-			game.active_player = game.players.first
-		else
-			index = game.players.index(game.active_player)
-			game.active_player = game.players[index+1]
-		end
+		game.set_next_player_active
 	end
 	if game.phase == 0
 		# verfuegbare Einheiten berechnen

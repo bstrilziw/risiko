@@ -1,11 +1,12 @@
 / stellt die Spielübersicht dar: Karte, Menüs, Live-Chat
-form method="GET" action="/game/leave"
-	button#button_leave_game Spiel verlassen
-span#active_player Aktiver Spieler:
-br
-span#phase Warten...
-br
-button#button_next_phase Fertig
+div.top
+	form method="GET" action="/game/leave"
+		button#button_leave_game Spiel verlassen
+	span#active_player Aktiver Spieler:
+	br
+	span#phase Warten...
+	br
+	button#button_next_phase Fertig
 / Karte
 svg#worldmap xmlns="http://www.w3.org/2000/svg" version="1.1" height="755" width="1200"
     defs

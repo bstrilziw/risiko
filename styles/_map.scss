@@ -14,3 +14,12 @@
 .land_selected {
 	filter: url(/game#filter_glow);
 }
+
+#unitpicker {
+	position: absolute;
+	z-index: 10;
+	
+	input {
+		width: 40px;
+	}
+}

@@ -1,0 +1,83 @@
+#active_player {
+	position: relative;
+	padding-right: 20px;
+	
+	span.color {
+		width: 15px;
+		height: 15px;
+		display: block;
+		position: absolute;
+		right: 0;
+		top: 0;
+	}
+	
+	&.player1 span.color {
+		background-color: $player1-color;
+	}
+	
+	&.player2 span.color {
+		background-color: $player2-color;
+	}
+	
+	&.player3 span.color {
+		background-color: $player3-color;
+	}
+	
+	&.player4 span.color {
+		background-color: $player4-color;
+	}
+	
+	&.player5 span.color {
+		background-color: $player5-color;
+	}
+	
+	&.player6 span.color {
+		background-color: $player6-color;
+	}
+}
+
+#playerlist {
+	padding: 5px;
+	width: 150px;
+	border: 2px solid $main-link-color;
+	position: relative;
+	bottom: 300px;
+	left: 10px;
+	
+	li {
+		position: relative;
+		
+		span.color {
+			width: 15px;
+			height: 15px;
+			position: absolute;
+			top: 3px;
+			right: 3px;
+			display: block;
+		}
+		
+		&.player1 span.color {
+			background-color: $player1-color;
+		}
+		
+		&.player2 span.color {
+			background-color: $player2-color;
+		}
+		
+		&.player3 span.color {
+			background-color: $player3-color;
+		}
+		
+		&.player4 span.color {
+			background-color: $player4-color;
+		}
+		
+		&.player5 span.color {
+			background-color: $player5-color;
+		}
+		
+		&.player6 span.color {
+			background-color: $player6-color;
+		}
+	}
+}

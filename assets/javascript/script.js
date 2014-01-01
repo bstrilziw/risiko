@@ -169,7 +169,7 @@ function update() {
 			phase = data.phase;
 			updatePhaseText();
 			// Aktiver-Spieler-Beschriftung anpassen
-			$('#active_player').text("Aktiver Spieler: " + data.active_player);
+			$('#active_player').find('#player_name').text(data.active_player).parent().removeClass().addClass("player"+data.active_player_id);
 			// Spieler Namen aktualisieren
 			if (phase !== 3) {
 				playerName = data.active_player;
@@ -185,7 +185,7 @@ function update() {
 function updatePhaseText() {
 	switch (phase) {
 		case 0:
-			$('#phase').text("Verteilen Sie ihre Einheiten. (" + placeableUnits + ")");
+			$('#phase').text("Verteilen Sie Ihre Einheiten. (" + placeableUnits + ")");
 			break;
 		case 1:
 			$('#phase').text("Angriff durchfuehren.");
@@ -202,8 +202,8 @@ function updatePhaseText() {
 function getColorToName(name) {
 	var color = "#888";
 	$('#playerlist ul li').each(function() {
-		if ($(this).children().first().text() === name) {
-			color = $(this).children().last().text().trim();
+		if ($(this).find('span.name').text() === name) {
+			color = $(this).find('span.color').css('background-color');
 		}
 	});
 	return color;

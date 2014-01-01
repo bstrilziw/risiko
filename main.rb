@@ -32,6 +32,9 @@ get '/lobby' do
 	redirect '/list' if account.game.nil?
 	redirect '/game' if account.game.running
 	
+	# blendet den "Spiel starten" Button für den Ersteller ein
+	@creator = true if Game.get(account.game_id).players.first.id == session[:account_id]
+	
 	@players = Account.all(game: account.game)
 	slim :lobby
 end
@@ -259,6 +262,7 @@ get '/update' do # Spieldaten abfragen
 	# Allgemeine Spielinformationen
 	game = get_game
 	active_player = game.active_player
+	active_player_id = active_player.id
 	active_player = active_player.name if !active_player.nil?
 	phase = game.phase
 	phase = 3 if game.active_player != get_account
@@ -275,7 +279,7 @@ get '/update' do # Spieldaten abfragen
 		laender << {owner: owner, name: land.name, unit_count: land.unit_count}
 	end
 		
-	halt 200, {active_player: active_player, mapdata: laender, phase: phase,
+	halt 200, {active_player_id: active_player_id, active_player: active_player, mapdata: laender, phase: phase,
 					placeable_units: placeable_units}.to_json
 end
 

@@ -32,7 +32,7 @@ get '/lobby' do
 	redirect '/list' if account.game.nil?
 	redirect '/game' if account.game.running
 	
-	@players = Account.all(game: account.game)
+	@players = account.game.players(order: [:number.asc])
 	slim :lobby
 end
 
@@ -65,7 +65,7 @@ get '/game' do
 	
 	@posts = Post.all().last(20)
 	
-	@players = account.game.players
+	@players = account.game.players(order: [:number.asc])
   slim :game
 end
 
@@ -90,7 +90,7 @@ post '/game/create' do
 	end
 	redirect '/game/create' if params[:game_name].nil? || params[:game_name].empty?
 	
-	account.update(game: Game.create(name: params[:game_name]))
+	account.update(game: Game.create(name: params[:game_name]), number: 1)
 	redirect '/lobby'
 end
 
@@ -101,7 +101,7 @@ get '/game/join/:game_name' do
 	account = get_account
 	redirect '/lobby' if account.game == game
 	halt 500, "Sie sind bereits in einem Spiel." unless account.game.nil?
-	account.update(game: game)
+	account.update(game: game, number: game.players.length+1)
 	
 	redirect '/lobby'
 end
@@ -111,67 +111,67 @@ get '/game/start' do
 	game = get_game
 	redirect '/game' if game.running
 	# auf Berechtigung zum Starten ueberpruefen
-	redirect '/lobby' if get_account != game.players.first
-	game.update(running: true, active_player: game.players.first)
+	redirect '/lobby' if get_account != game.players(order: [:number.asc]).first
+	game.update(running: true, active_player: game.players(order: [:number.asc]).first)
 	
 	# Laender erstellen
 	# Landname => {country => Objekt des Landes aus der DB,
 	#						neighbors => Namen der Nachbarn}
 	laender_beziehungen = {
-			# Nord-Amerika
-			"alaska" => {country: nil, neighbors: ["alberta", "nordwest-territorium", "kamtschatka"]},
-			"alberta" => {country: nil, neighbors: ["alaska", "nordwest-territorium", "weststaaten", "ontario"]},
-			"weststaaten" => {country: nil, neighbors: ["alberta", "mittel-amerika", "ontario", "oststaaten"]},
-			"mittel-amerika" => {country: nil, neighbors: ["weststaaten", "oststaaten", "venezuela"]},
-			"nordwest-territorium" => {country: nil, neighbors: ["alaska", "alberta", "groenland"]},
-			"ontario" => {country: nil, neighbors: ["nordwest-territorium", "alberta", "weststaaten",
-										"oststaaten", "quebec", "groenland"]},
-			"oststaaten" => {country: nil, neighbors: ["weststaaten", "mittel-amerika", "ontario", "quebec"]},
-			"quebec" => {country: nil, neighbors: ["ontario", "oststaaten", "groenland"]},
-			"groenland" => {country: nil, neighbors: ["nordwest-territorium", "ontario", "quebec", "island"]},
+		# Nord-Amerika
+		"alaska" => {country: nil, neighbors: ["alberta", "nordwest-territorium", "kamtschatka"]},
+		"alberta" => {country: nil, neighbors: ["alaska", "nordwest-territorium", "weststaaten", "ontario"]},
+		"weststaaten" => {country: nil, neighbors: ["alberta", "mittel-amerika", "ontario", "oststaaten"]},
+		"mittel-amerika" => {country: nil, neighbors: ["weststaaten", "oststaaten", "venezuela"]},
+		"nordwest-territorium" => {country: nil, neighbors: ["alaska", "alberta", "groenland"]},
+		"ontario" => {country: nil, neighbors: ["nordwest-territorium", "alberta", "weststaaten",
+				"oststaaten", "quebec", "groenland"]},
+		"oststaaten" => {country: nil, neighbors: ["weststaaten", "mittel-amerika", "ontario", "quebec"]},
+		"quebec" => {country: nil, neighbors: ["ontario", "oststaaten", "groenland"]},
+		"groenland" => {country: nil, neighbors: ["nordwest-territorium", "ontario", "quebec", "island"]},
 			
-			# Süd-Amerika
-			"venezuela" => {country: nil, neighbors: ["mittel-amerika", "peru", "brasilien"]},
-			"peru" => {country: nil, neighbors: ["venezuela", "brasilien", "argentinien"]},
-			"brasilien" => {country: nil, neighbors: ["venezuela", "peru", "argentinien", "nordwest-afrika"]},
-			"argentinien" => {country: nil, neighbors: ["peru", "brasilien"]},
+		# Süd-Amerika
+		"venezuela" => {country: nil, neighbors: ["mittel-amerika", "peru", "brasilien"]},
+		"peru" => {country: nil, neighbors: ["venezuela", "brasilien", "argentinien"]},
+		"brasilien" => {country: nil, neighbors: ["venezuela", "peru", "argentinien", "nordwest-afrika"]},
+		"argentinien" => {country: nil, neighbors: ["peru", "brasilien"]},
 			
-			# Afrika
-			"nordwest-afrika" => {country: nil, neighbors: ["brasilien", "aegypten", "ost-afrika", "kongo", "west-europa", "sued-europa"]},
-			"aegypten" => {country: nil, neighbors: ["nordwest-afrika", "ost-afrika", "mittlerer-osten", "sued-europa"]},
-			"ost-afrika" => {country: nil, neighbors: ["nordwest-afrika", "aegypten", "kongo", "sued-afrika", "mittlerer-osten", "madagaskar"]},
-			"kongo" => {country: nil, neighbors: ["nordwest-afrika", "ost-afrika", "sued-afrika"]},
-			"sued-afrika" => {country: nil, neighbors: ["ost-afrika", "kongo", "madagaskar"]},
-			"madagaskar" => {country: nil, neighbors: ["ost-afrika", "sued-afrika"]},
+		# Afrika
+		"nordwest-afrika" => {country: nil, neighbors: ["brasilien", "aegypten", "ost-afrika", "kongo", "west-europa", "sued-europa"]},
+		"aegypten" => {country: nil, neighbors: ["nordwest-afrika", "ost-afrika", "mittlerer-osten", "sued-europa"]},
+		"ost-afrika" => {country: nil, neighbors: ["nordwest-afrika", "aegypten", "kongo", "sued-afrika", "mittlerer-osten", "madagaskar"]},
+		"kongo" => {country: nil, neighbors: ["nordwest-afrika", "ost-afrika", "sued-afrika"]},
+		"sued-afrika" => {country: nil, neighbors: ["ost-afrika", "kongo", "madagaskar"]},
+		"madagaskar" => {country: nil, neighbors: ["ost-afrika", "sued-afrika"]},
 			
-			# Europa
-			"island" => {country: nil, neighbors: ["groenland", "skandinavien", "gross-britannien"]},
-			"skandinavien" => {country: nil, neighbors: ["island", "ukraine", "gross-britannien", "mittel-europa"]},
-			"ukraine" => {country: nil, neighbors: ["skandinavien", "mittel-europa", "mittlerer-osten", "afghanistan", "ural", "sued-europa"]},
-			"gross-britannien" => {country: nil, neighbors: ["island", "skandinavien", "mittel-europa", "west-europa"]},
-			"mittel-europa" => {country: nil, neighbors: ["skandinavien", "ukraine", "gross-britannien", "west-europa", "sued-europa"]},
-			"west-europa" => {country: nil, neighbors: ["nordwest-afrika", "gross-britannien", "mittel-europa", "sued-europa"]},
-			"sued-europa" => {country: nil, neighbors: ["nordwest-afrika", "aegypten", "ukraine", "mittel-europa", "west-europa", "mittlerer-osten"]},
+		# Europa
+		"island" => {country: nil, neighbors: ["groenland", "skandinavien", "gross-britannien"]},
+		"skandinavien" => {country: nil, neighbors: ["island", "ukraine", "gross-britannien", "mittel-europa"]},
+		"ukraine" => {country: nil, neighbors: ["skandinavien", "mittel-europa", "mittlerer-osten", "afghanistan", "ural", "sued-europa"]},
+		"gross-britannien" => {country: nil, neighbors: ["island", "skandinavien", "mittel-europa", "west-europa"]},
+		"mittel-europa" => {country: nil, neighbors: ["skandinavien", "ukraine", "gross-britannien", "west-europa", "sued-europa"]},
+		"west-europa" => {country: nil, neighbors: ["nordwest-afrika", "gross-britannien", "mittel-europa", "sued-europa"]},
+		"sued-europa" => {country: nil, neighbors: ["nordwest-afrika", "aegypten", "ukraine", "mittel-europa", "west-europa", "mittlerer-osten"]},
 			
-			# Asien
-			"mittlerer-osten" => {country: nil, neighbors: ["aegypten", "ost-afrika", "ukraine", "afghanistan", "indien", "sued-europa"]},
-			"afghanistan" => {country: nil, neighbors: ["ukraine", "mittlerer-osten", "ural", "china", "indien"]},
-			"ural" => {country: nil, neighbors: ["ukraine", "afghanistan", "sibirien", "china"]},
-			"sibirien" => {country: nil, neighbors: ["ural", "jakutien", "irkutsk", "mongolei", "china"]},
-			"jakutien" => {country: nil, neighbors: ["sibirien", "irkutsk", "kamtschatka"]},
-			"kamtschatka" => {country: nil, neighbors: ["alaska", "jakutien", "irkutsk", "mongolei", "japan"]},
-			"irkutsk" => {country: nil, neighbors: ["sibirien", "jakutien", "mongolei","kamtschatka"]},
-			"mongolei" => {country: nil, neighbors: ["sibirien", "irkutsk", "japan", "china", "kamtschatka"]},
-			"japan" => {country: nil, neighbors: ["mongolei", "china", "kamtschatka"]},
-			"china" => {country: nil, neighbors: ["afghanistan", "ural", "sibirien", "mongolei", "japan", "indien", "siam"]},
-			"indien" => {country: nil, neighbors: ["mittlerer-osten", "afghanistan", "china", "siam"]},
-			"siam" => {country: nil, neighbors: ["china", "indien", "indonesien"]},
+		# Asien
+		"mittlerer-osten" => {country: nil, neighbors: ["aegypten", "ost-afrika", "ukraine", "afghanistan", "indien", "sued-europa"]},
+		"afghanistan" => {country: nil, neighbors: ["ukraine", "mittlerer-osten", "ural", "china", "indien"]},
+		"ural" => {country: nil, neighbors: ["ukraine", "afghanistan", "sibirien", "china"]},
+		"sibirien" => {country: nil, neighbors: ["ural", "jakutien", "irkutsk", "mongolei", "china"]},
+		"jakutien" => {country: nil, neighbors: ["sibirien", "irkutsk", "kamtschatka"]},
+		"kamtschatka" => {country: nil, neighbors: ["alaska", "jakutien", "irkutsk", "mongolei", "japan"]},
+		"irkutsk" => {country: nil, neighbors: ["sibirien", "jakutien", "mongolei","kamtschatka"]},
+		"mongolei" => {country: nil, neighbors: ["sibirien", "irkutsk", "japan", "china", "kamtschatka"]},
+		"japan" => {country: nil, neighbors: ["mongolei", "china", "kamtschatka"]},
+		"china" => {country: nil, neighbors: ["afghanistan", "ural", "sibirien", "mongolei", "japan", "indien", "siam"]},
+		"indien" => {country: nil, neighbors: ["mittlerer-osten", "afghanistan", "china", "siam"]},
+		"siam" => {country: nil, neighbors: ["china", "indien", "indonesien"]},
 			
-			# Ozeanien
-			"indonesien" => {country: nil, neighbors: ["siam", "neu-guinea", "ost-australien", "west-australien"]},
-			"neu-guinea" => {country: nil, neighbors: ["indonesien", "ost-australien"]},
-			"ost-australien" => {country: nil, neighbors: ["indonesien", "neu-guinea", "west-australien"]},
-			"west-australien" => {country: nil, neighbors: ["indonesien", "ost-australien"]}
+		# Ozeanien
+		"indonesien" => {country: nil, neighbors: ["siam", "neu-guinea", "ost-australien", "west-australien"]},
+		"neu-guinea" => {country: nil, neighbors: ["indonesien", "ost-australien"]},
+		"ost-australien" => {country: nil, neighbors: ["indonesien", "neu-guinea", "west-australien"]},
+		"west-australien" => {country: nil, neighbors: ["indonesien", "ost-australien"]}
 	}
 	
 	# Spieler auflisten und verbleibende Anzahl der Laender pro Spieler speichern
@@ -230,6 +230,9 @@ get '/game/leave' do
 	# Spiel <-> Spieler Verbindung trennen
 	account = get_account
 	game = get_game
+	game.players(:number.gt => account.number).each do |player|
+		player.number -= 1
+	end
 	# bin ich an der Reihe?
 	if game.active_player == account
 		game.set_next_player_active
@@ -273,7 +276,7 @@ get '/update' do # Spieldaten abfragen
 	end
 		
 	halt 200, {active_player: active_player, mapdata: laender, phase: phase,
-					placeable_units: placeable_units}.to_json
+		placeable_units: placeable_units}.to_json
 end
 
 post '/update/phase' do # Spieler hat am Ende einer Phase auf Bestaetigen geklickt
@@ -384,8 +387,8 @@ end
 
 get '/logout' do
 	redirect '/' unless logged_in?
-		session.clear
-		slim :logout
+	session.clear
+	slim :logout
 end
 
 get '/account/new' do #Neue Accounts
@@ -410,7 +413,7 @@ end
 
 post '/chat' do
 	if !params[:message].empty?
-	@post = Post.create(text: params[:message], writer: get_account, time: Time.new)
+		@post = Post.create(text: params[:message], writer: get_account, time: Time.new)
 	end
 end
 

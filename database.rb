@@ -8,6 +8,7 @@ class Account
 	property :login_name, String
 	property :password, String
 	property :name, String
+	property :number, Integer
 	has n, :countries, 'Country'
 	belongs_to :game, :required => false # -> game.players
 end
@@ -62,11 +63,10 @@ class Game
 	
 	# naechsten Spieler aktiv setzen
 	def set_next_player_active
-		if self.active_player == self.players.last
-			self.active_player = self.players.first
+		if self.active_player.number == self.players.length
+			self.active_player = self.players(order: [:number.asc]).first
 		else
-			index = self.players.index(self.active_player)
-			self.active_player = self.players[index+1]
+			self.active_player = self.players(order: [:number.asc])[self.active_player.number]
 		end
 	end
 end

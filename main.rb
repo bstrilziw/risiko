@@ -323,6 +323,33 @@ post '/update/new_unit' do
 	"" # sinatra kann hier mit einem Hash nichts anfangen
 end
 
+post '/update/attack' do
+	halt 500, "Fehler: Sie sind nicht eingeloggt." unless logged_in?
+	account = get_account
+	game = get_game
+	halt 500, "Sie sind nicht an der Reihe." unless account == game.active_player
+	halt 500, "Fehler: ungueltige Daten." if params[:source].nil? || params[:target].nil? || params[:units].nil?
+	source = game.countries.first(name: params[:source])
+	halt 500, "Es gibt dieses Land nicht: #{params[:source]}" if source.nil?
+	halt 500, "Dieses Land gehoert ihnen nicht: #{params[:source]}" unless source.account == account
+	target = game.countries.first(name: params[:target])
+	halt 500, "Es gibt dieses Land nicht: #{params[:target]}" if target.nil?
+	halt 500, "Sie koennen ihr eigenes Land nicht angreifen: #{params[:target]}" if target.account == account
+	halt 500, "#{target.name} ist kein Nachbarland von #{source.name}" if source.neighbors.get(target.id).nil?
+	halt 500, "Zu wenige Einheiten." if source.unit_count <= 1
+	units = params[:units].to_i
+	halt 500, "Ungueltige Einheitenzahl." unless units < source.unit_count && units > 0
+	if units < target.unit_count
+		target.update(unit_count: target.unit_count - units)
+	elsif units == target.unit_count
+		target.update(unit_count: 1)
+	elsif units > target.unit_count
+		target.update(unit_count: units - target.unit_count, account: source.account)
+	end
+	source.update(unit_count: source.unit_count - units)
+	""
+end
+
 get '/login' do
 	redirect '/' if logged_in?
   # Login-Formular

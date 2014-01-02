@@ -60,7 +60,7 @@ $(document).ready(function() {
 					return;
 				}
 				selectedLand1 = this;
-				
+
 				showUnitPicker(selectedLand1.id);
 			}
 			// eigenes Land?
@@ -75,11 +75,21 @@ $(document).ready(function() {
 				if (neighbors[name(selectedLand1)].indexOf(name(this)) < 0) {
 					selectedLand1 = null;
 					selectedLand2 = null;
+					destroyUnitPicker();
 				}
 				else {
 					selectedLand2 = this;
+					updateHighlight();
 					// ANGRIFF hier durchführen
 					// Anzahl der angreifenden Einheiten auswählen
+					$.ajax({
+						type: "POST",
+						url: "/update/attack",
+						data: {source: name(selectedLand1), target: name(selectedLand2), units: $('#unitpicker input').val().toString()}
+					});
+					destroyUnitPicker();
+					selectedLand1 = null;
+					selectedLand2 = null;
 				}
 			}
 			updateHighlight();
@@ -344,15 +354,15 @@ function updateHighlight() {
 
 function showUnitPicker(element) {
 	destroyUnitPicker();
-	var path = $('#'+element);
+	var path = $('#' + element);
 	var path_bbox = path[0].getBBox();
 	var worldmap_margin_top = $('.content .top').height();
-	
+
 	var selected_land = element.split('_')[1];
-	var max = $('#text_'+selected_land).children().last().text() - 1;
-	
+	var max = $('#text_' + selected_land).children().last().text() - 1;
+
 	$('.content').append('<div id="unitpicker" style="top: ' + (path_bbox.y + path_bbox.height + worldmap_margin_top) + 'px; left: ' + (path_bbox.x + (path_bbox.width / 2) - 30) + 'px"><input value="1" /></div>');
-	$('#unitpicker input').spinner({ min: 1, max: max }).focus();
+	$('#unitpicker input').spinner({min: 1, max: max}).focus();
 }
 
 function destroyUnitPicker() {

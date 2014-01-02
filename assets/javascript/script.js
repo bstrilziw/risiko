@@ -90,6 +90,7 @@ $(document).ready(function() {
 					destroyUnitPicker();
 					selectedLand1 = null;
 					selectedLand2 = null;
+					update();
 				}
 			}
 			updateHighlight();
@@ -129,21 +130,19 @@ $(document).ready(function() {
 		}
 	});
 
-	// Update request alle 5 Sekunden
-	update();
-
 	// Chat-Toggle
 	$(".button#toggle").click(function() {
 		$(".chatbox").slideToggle(200);
 		$("#posts").animate({scrollTop: 10000}, 'fast');
 	});
 	$(".chatbox").toggle();
+	
 	timer();
-
 });
 
-// Timer für Chat-Update
+// Timer für Update
 function timer() {
+	update();
 	updateChat();
 	setTimeout(function() {
 		timer();
@@ -191,9 +190,6 @@ function update() {
 			updateHighlight();
 		}
 	});
-	setTimeout(function() {
-		update();
-	}, 5000);
 }
 
 function updatePhaseText() {
@@ -221,41 +217,6 @@ function getColorToName(name) {
 		}
 	});
 	return color;
-}
-
-function intToColor(int) {
-	switch (int) {
-		case 0:
-			return '#ff0000';
-		case 1:
-			return '#00ff00';
-		case 2:
-			return '#0000ff';
-		case 3:
-			return '#dddd00';
-		case 4:
-			return '#00dddd';
-		case 5:
-			return '#dd00dd';
-		case 6:
-			return '#ff8800';
-		case 7:
-			return '#00ff88';
-		case 8:
-			return '#8800ff';
-		case 9:
-			return '#88ff00';
-		default:
-			return 'grey';
-	}
-}
-
-function randColor(currentColor) {
-	var newColor = currentColor;
-	while (newColor === currentColor) {
-		newColor = intToColor(Math.floor((Math.random() * 10)));
-	}
-	return newColor;
 }
 
 function send(textbox) {
@@ -346,6 +307,11 @@ function updateHighlight() {
 		});
 	}
 	else if (phase === 2) {
+		$('.land').each(function() {
+			$(this).css('fill', getColorToName(owner[name(this)]));
+		});
+	}
+	else if (phase === 3) {
 		$('.land').each(function() {
 			$(this).css('fill', getColorToName(owner[name(this)]));
 		});

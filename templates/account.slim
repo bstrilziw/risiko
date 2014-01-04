@@ -7,7 +7,7 @@ h1 Hallo #{@account.name}!
 	- else
 		p Du bist gerade im Spiel #{@game.name}, schau <a href="/game">dort</a> doch mal vorbei.
 
-form.edit.form action="/profile" method="POST"
+form.edit.form action="/account" method="POST"
 	h4 Benutzerdaten ändern (funktioniert noch nicht)
 	- if !@errors.nil?
 		div.error

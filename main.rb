@@ -383,7 +383,7 @@ post '/login' do
 			# TODO: neue Seite anzeigen, nachdem man eingeloggt ist?
 			# 		oder gleiche Seite umgestalten? <<- gleiche Seite umgestalten, Feedback fürs Einloggen erhalten
 			# 		z.b. "Willkommen Fafnir!"
-			redirect '/profile'
+			redirect '/account'
 		end
 	end
 end
@@ -505,7 +505,7 @@ get '/updateChat' do
 	messages.to_json
 end
 
-get '/profile' do
+get '/account' do
 	@account = get_account
 	@values = Hash[:login_name, @account.login_name, :name, @account.name]
 	
@@ -513,5 +513,5 @@ get '/profile' do
 		@game = Game.get(@account.game_id)
 	end
 	
-	slim :profile
+	slim :account
 end

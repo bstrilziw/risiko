@@ -1,18 +1,2 @@
 h1 Anmelden
-form.login.form action="/login" method="POST"
-	- if !@errors.nil?
-		div.error
-			ul
-				- @errors.each do |error|
-					li: strong #{error}
-
-	div
-		label for="username" Benutzername:
-		input#username type="text" name="login_name"
-	div
-		label for="password" Passwort:
-		input#password type="password" name="login_pass"
-	input.button type="submit" value="Anmelden"
-	
-p Oder einen <a href="/account/new">neuen Account erstellen</a>?
-	
+== slim :login_form

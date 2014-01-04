@@ -400,6 +400,7 @@ end
 get '/logout' do
 	redirect '/' unless logged_in?
 	session.clear
+	
 	slim :logout
 end
 

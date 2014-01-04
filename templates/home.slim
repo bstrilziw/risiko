@@ -1,4 +1,5 @@
 - unless logged_in?
-	== slim :login
+	h1 Anmelden
+	== slim :login_form
 - else
 	== slim :account

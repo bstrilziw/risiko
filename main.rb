@@ -19,6 +19,13 @@ end
 get('/styles/styles.css') { scss :styles }
 
 get '/' do
+	@account = get_account
+	@values = Hash[:login_name, @account.login_name, :name, @account.name, :mail, @account.mail]
+	
+	if !@account.game_id.nil?
+		@game = Game.get(@account.game_id)
+	end
+	
   slim :home
 end
 
@@ -358,7 +365,7 @@ end
 get '/login' do
 	redirect '/' if logged_in?
   # Login-Formular
-  slim :login	
+  slim :login
 end
 
 post '/login' do
@@ -507,7 +514,7 @@ end
 
 get '/account' do
 	@account = get_account
-	@values = Hash[:login_name, @account.login_name, :name, @account.name]
+	@values = Hash[:login_name, @account.login_name, :name, @account.name, :mail, @account.mail]
 	
 	if !@account.game_id.nil?
 		@game = Game.get(@account.game_id)

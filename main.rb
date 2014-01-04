@@ -357,7 +357,6 @@ end
 get '/login' do
 	redirect '/' if logged_in?
   # Login-Formular
-	@errors = Array.new
 	
   slim :login	
 end
@@ -372,7 +371,7 @@ post '/login' do
 
 		if account.nil? || account.password != Digest::SHA1.hexdigest(params[:login_pass])
 			# Benutzername oder Passwort ungueltig
-			@errors.push("Benutzername oder Passwort ungueltig")
+			@errors << "Benutzername oder Passwort ungueltig"
 			
 			slim :login
 		else
@@ -396,7 +395,6 @@ get '/logout' do
 end
 
 get '/account/new' do #Neue Accounts
-	@errors = Array.new
 	@values = Hash[:login_name, "", :name, ""]
 	slim :new_account
 end
@@ -407,42 +405,42 @@ post '/account/new' do
 	
 	# pruefe, ob alle Werte gesetzt sind
 	if params[:login_name] == ""
-		@errors.push("Bitte gib einen Benutzernamen ein.")
+		@errors << "Bitte gib einen Benutzernamen ein."
 	end
 	if params[:login_pass] == ""
-		@errors.push("Bitte gib ein Passwort ein.")
+		@errors << "Bitte gib ein Passwort ein."
 	end
 	if params[:login_pass_repeat] == ""
-		@errors.push("Bitte wiederhole das Passwort.")
+		@errors << "Bitte wiederhole das Passwort."
 	end
 	if params[:name] == ""
-		@errors.push("Bitte gib einen Anzeigenamen ein.")
+		@errors << "Bitte gib einen Anzeigenamen ein."
 	end
 	
 	# pruefen, ob Benutzername bereits vergeben ist
 	if !Account.first(login_name: params[:login_name]).nil?
-		@errors.push("Der Benutzername #{params[:login_name]} ist bereits vergeben.")
+		@errors << "Der Benutzername #{params[:login_name]} ist bereits vergeben."
 	end
 
 	# pruefen, ob Anzeigenamne bereits vergeben ist
 	if !Account.first(name: params[:name]).nil?
-		@errors.push("Der Anzeigenamne #{params[:name]} ist bereits vergeben.")
+		@errors << "Der Anzeigenamne #{params[:name]} ist bereits vergeben."
 	end
 
 	# pruefen, ob Passwörter übereinstimmen
 	if params[:login_pass] != params[:login_pass_repeat]
-		@errors.push("Die Passwoerter stimmen nicht ueberein.")
+		@errors << "Die Passwoerter stimmen nicht ueberein."
 	end
 
 	# pruefen, ob Werte zu lang
 	if params[:login_name].length > 15
-		@errors.push("Der Benutzername darf nur 15 Zeichen lang sein.")
+		@errors  << "Der Benutzername darf nur 15 Zeichen lang sein."
 	end
 	if params[:login_pass].length > 255
-		@errors.push("Das Passwort ist zu lang, bitte waehle eins, das max. 255 Zeichen hat.")
+		@errors << "Das Passwort ist zu lang, bitte waehle eins, das max. 255 Zeichen hat."
 	end
 	if params[:name].length > 15
-		@errors.push("Der Anzeigename darf nur 15 Zeichen lang sein.")
+		@errors << "Der Anzeigename darf nur 15 Zeichen lang sein."
 	end
 
 	# keine Fehler? Dann sollten alle Daten stimmen, Account wird angelegt
@@ -453,9 +451,9 @@ post '/account/new' do
 		
 		if account != nil
 			if account.saved?
-				@errors.push("Der Account #{params[:login_name]} wurde angelegt.")
+				@errors << "Der Account #{params[:login_name]} wurde angelegt."
 			else
-				@errors.push("Account konnte nicht erstellt werden.")
+				@errors << "Account konnte nicht erstellt werden."
 			end
 		end
 		
@@ -482,7 +480,6 @@ end
 get '/profile' do
 	@account = get_account
 	@values = Hash[:login_name, @account.login_name, :name, @account.name]
-	@errors = Array.new
 	
 	if !@account.game_id.nil?
 		@game = Game.get(@account.game_id)

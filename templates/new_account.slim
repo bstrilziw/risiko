@@ -1,6 +1,6 @@
 h1 Neuen Account anlegen
 form.register.form action="/account/new" method="POST"
-	- if @errors.any?
+	- if !@errors.nil?
 		div.error
 			ul
 				- @errors.each do |error|

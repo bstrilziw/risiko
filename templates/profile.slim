@@ -9,7 +9,7 @@ h1 Hallo #{@account.name}!
 
 form.edit.form action="/profile" method="POST"
 	h4 Benutzerdaten ändern (funktioniert noch nicht)
-	- if @errors.any?
+	- if !@errors.nil?
 		div.error
 			ul
 				- @errors.each do |error|

@@ -19,11 +19,13 @@ end
 get('/styles/styles.css') { scss :styles }
 
 get '/' do
-	@account = get_account
-	@values = Hash[:login_name, @account.login_name, :name, @account.name, :mail, @account.mail]
-	
-	if !@account.game_id.nil?
-		@game = Game.get(@account.game_id)
+	if logged_in?
+		@account = get_account
+		@values = Hash[:login_name, @account.login_name, :name, @account.name, :mail, @account.mail]
+
+		if !@account.game_id.nil?
+			@game = Game.get(@account.game_id)
+		end
 	end
 	
   slim :home
@@ -407,59 +409,8 @@ get '/account/new' do #Neue Accounts
 end
 
 post '/account/new' do
-	@errors = Array.new
 	@values = params
-	
-	# pruefe, ob alle Werte gesetzt sind
-	if params[:login_name] == ""
-		@errors << "Bitte gib einen Benutzernamen ein."
-	end
-	if params[:mail] == "" || !/\A([\w\.\-\+]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i.match(params[:mail])
-		@errors << "Bitte gib eine gueltige E-Mail-Adresse ein."
-	end
-	if params[:login_pass] == ""
-		@errors << "Bitte gib ein Passwort ein."
-	end
-	if params[:login_pass_repeat] == ""
-		@errors << "Bitte wiederhole das Passwort."
-	end
-	if params[:name] == ""
-		@errors << "Bitte gib einen Anzeigenamen ein."
-	end
-	
-	# pruefen, ob Benutzername bereits vergeben ist
-	if !Account.first(login_name: params[:login_name]).nil?
-		@errors << "Der Benutzername #{params[:login_name]} ist bereits vergeben."
-	end
-	
-	# pruefen, ob E-Mail-Adresse bereits vergeben ist
-	if !Account.first(mail: params[:mail]).nil?
-		@errors << "Die E-Mailadresse #{params[:mail]} ist bereits einem anderen Benutzer zugeordnet."
-	end
-
-	# pruefen, ob Anzeigenamne bereits vergeben ist
-	if !Account.first(name: params[:name]).nil?
-		@errors << "Der Anzeigenamne #{params[:name]} ist bereits vergeben."
-	end
-
-	# pruefen, ob Passwörter übereinstimmen
-	if params[:login_pass] != params[:login_pass_repeat]
-		@errors << "Die Passwoerter stimmen nicht ueberein."
-	end
-
-	# pruefen, ob Werte zu lang
-	if params[:login_name].length > 15
-		@errors  << "Der Benutzername darf nur 15 Zeichen lang sein."
-	end
-	if params[:mail].length > 255
-		@errors << "Deine E-Mail-Adresse ist zu lang, bitte waehle eine, das max. 255 Zeichen hat."
-	end
-	if params[:login_pass].length > 255
-		@errors << "Das Passwort ist zu lang, bitte waehle eins, das max. 255 Zeichen hat."
-	end
-	if params[:name].length > 15
-		@errors << "Der Anzeigename darf nur 15 Zeichen lang sein."
-	end
+	@errors = validate_account_form
 
 	# keine Fehler? Dann sollten alle Daten stimmen, Account wird angelegt
 	if @errors.empty?
@@ -521,4 +472,20 @@ get '/account' do
 	end
 	
 	slim :account
+end
+
+post '/account/edit' do
+	@values = params
+	@errors = validate_account_form
+	
+	# keine Fehler? Dann sollten alle Daten stimmen, Account wird geändert
+	if @errors.empty?
+		password = Digest::SHA1.hexdigest(params[:login_pass]) # see: http://ruby.about.com/od/advancedruby/ss/Cryptographic-Hashes-In-Ruby.htm
+		account = get_account
+		account.update(login_name: params[:login_name], password: password, mail: params[:mail], name: params[:name])
+		
+		@errors << "Der Account wurde geaendert."
+	end
+	
+	slim :account_edit_form
 end

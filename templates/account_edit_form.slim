@@ -1,0 +1,27 @@
+form.edit.form action="/account/edit" method="POST"
+	h4 Benutzerdaten ändern
+	- if !@errors.nil?
+		div.error
+			ul
+				- @errors.each do |error|
+					li: strong #{error}
+
+	div
+		label for="username" Benutzername *
+		input#username type="text" name="login_name" value="#{@values[:login_name]}" maxlength="15"
+	div
+		label for="mail" E-Mail *
+		input#mail type="text" name="mail" value="#{@values[:mail]}" maxlength="255"
+	div
+		label for="password" Passwort
+		input#password type="password" name="login_pass" maxlength="255"
+	div
+		label for="password_repeat" Passwort wiederholen
+		input#password_repeat type="password" name="login_pass_repeat" maxlength="255"
+	div
+		label for="anzeigename" Anzeigename *
+		input#anzeigename type="text" name="name" value="#{@values[:name]}" maxlength="15"
+	div
+		span * Pflichtfeld
+	input.button type="submit" value="Abschicken"
+	input type="hidden" name="edit" value="1"

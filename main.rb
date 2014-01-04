@@ -475,3 +475,15 @@ get '/updateChat' do
 	end
 	messages.to_json
 end
+
+get '/profile' do
+	@account = get_account
+	@values = Hash[:login_name, @account.login_name, :name, @account.name]
+	@errors = Array.new
+	
+	if !@account.game_id.nil?
+		@game = Game.get(@account.game_id)
+	end
+	
+	slim :profile
+end

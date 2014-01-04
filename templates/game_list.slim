@@ -1,11 +1,13 @@
-h3 momentan offene Spiele
+h1 momentan offene Spiele
 br
 ul
 	- i = 0
 	- for game in @games ||= [] do
 		- i += 1
 		/ Spielbeschreibung ausgeben
-		li: a href=="/game/join/#{game.name.to_s}" = i.to_s + ". " + game.name.to_s + " [Besitzer: " + game.players.first.name.to_s + "] [Spieler: " + game.players.length.to_s + "/6]"
+		li: a href=="/game/join/#{game.name.to_s}" = i.to_s + ". " + game.name.to_s + " [Ersteller: " + game.players.first.name.to_s + "] [Spieler: " + game.players.length.to_s + "/6]"
+	- if i == 0
+		h3 Derzeit gibt es keine Spiele.
 br
-form method="GET" action="/game/create"
-	button#button_create_game type="submit" Spiel erstellen
+
+== slim :game_create

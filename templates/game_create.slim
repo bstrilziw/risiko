@@ -1,4 +1,11 @@
-form action="/game/create" method="POST"
-	label for="game_name" Spielname:
-	input#game_name name="game_name" type="text"
-	button type="submit" Spiel erstellen
+form.create_game.form action="/game/create" method="POST"
+	h2 Neues Spiel erstellen
+	- if !@errors.nil?
+		div.error
+			ul
+				- @errors.each do |error|
+					li: strong #{error}
+	div
+		label for="game_name" Spielname:
+		input#game_name name="game_name" type="text"
+	button.button type="submit" Spiel erstellen

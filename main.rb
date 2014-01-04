@@ -99,10 +99,25 @@ post '/game/create' do
 		redirect '/lobby' unless account.game.running
 		redirect '/game'
 	end
-	redirect '/game/create' if params[:game_name].nil? || params[:game_name].empty?
 	
-	account.update(game: Game.create(name: params[:game_name]), number: 1)
-	redirect '/lobby'
+	@errors = Array.new
+	params[:game_name].strip!
+	
+	# pruefe, ob Spielname ausgefüllt
+	if params[:game_name].nil? || params[:game_name].empty? || params[:game_name] == ""
+		@errors << "Der Spielname fehlt."
+	end
+	
+	if !Game.first(name: params[:game_name]).nil?
+		@errors << "Ein Spiel mit dem Namen \"#{params[:game_name]}\" gibt es bereits."
+	end
+	
+	if @errors.empty?
+		account.update(game: Game.create(name: params[:game_name]), number: 1)
+		redirect '/lobby'
+	end
+	
+	slim :game_create
 end
 
 get '/game/join/:game_name' do	

@@ -392,23 +392,70 @@ get '/logout' do
 end
 
 get '/account/new' do #Neue Accounts
+	@errors = Array.new
+	@values = Hash[:login_name, "", :name, ""]
 	slim :new_account
 end
 
 post '/account/new' do
-	if params[:login_name] != nil && params[:login_pass] != nil && params[:name] != nil
-		# pruefen, ob login_name bereits vergeben ist
-		if Account.first(login_name: params[:login_name]).nil? && Account.first(name: params[:name]).nil?
-			account = Account.create(login_name: params[:login_name], password: params[:login_pass], name: params[:name])
-		else
-			halt 500, "Name bereits vergeben!"
-		end
+	@errors = Array.new
+	@values = params
+	
+	# pruefe, ob alle Werte gesetzt sind
+	if params[:login_name] == ""
+		@errors.push("Bitte gib einen Benutzernamen ein.")
 	end
-	if account.saved?
-		redirect to('/')
-	else
-		slim "p.fehler Account konnte nicht erstellt werden."
-	end	
+	if params[:login_pass] == ""
+		@errors.push("Bitte gib ein Passwort ein.")
+	end
+	if params[:login_pass_repeat] == ""
+		@errors.push("Bitte wiederhole das Passwort.")
+	end
+	if params[:name] == ""
+		@errors.push("Bitte gib einen Anzeigenamen ein.")
+	end
+	
+	# pruefen, ob Benutzername bereits vergeben ist
+	if !Account.first(login_name: params[:login_name]).nil?
+		@errors.push("Der Benutzername #{params[:login_name]} ist bereits vergeben.")
+	end
+
+	# pruefen, ob Anzeigenamne bereits vergeben ist
+	if !Account.first(name: params[:name]).nil?
+		@errors.push("Der Anzeigenamne #{params[:name]} ist bereits vergeben.")
+	end
+
+	# pruefen, ob Passwörter übereinstimmen
+	if params[:login_pass] != params[:login_pass_repeat]
+		@errors.push("Die Passwoerter stimmen nicht ueberein.")
+	end
+
+	# pruefen, ob Werte zu lang
+	if params[:login_name].length > 15
+		@errors.push("Der Benutzername darf nur 15 Zeichen lang sein.")
+	end
+	if params[:login_pass].length > 255
+		@errors.push("Das Passwort ist zu lang, bitte waehle eins, das max. 255 Zeichen hat.")
+	end
+	if params[:name].length > 15
+		@errors.push("Der Anzeigename darf nur 15 Zeichen lang sein.")
+	end
+
+	# keine Fehler? Dann sollten alle Daten stimmen, Account wird angelegt
+	if @errors.empty?
+		account = Account.create(login_name: params[:login_name], password: params[:login_pass], name: params[:name])
+		if account != nil
+			if account.saved?
+				@errors.push("Der Account #{params[:login_name]} wurde angelegt.")
+			else
+				@errors.push("Account konnte nicht erstellt werden.")
+			end
+		end
+		
+		@values.clear
+	end
+
+	slim :new_account
 end
 
 post '/chat' do

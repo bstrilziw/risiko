@@ -1,9 +1,23 @@
-h1 New Account
-form action="/account/new" method="POST"
-	label for="username" Username:
-	input#username type="text" name="login_name"
-	label for="password" Password:
-	input#password type="password" name="login_pass"
-	label for="anzeigename" Anzeigename:
-	input#anzeigename type="text" name="name"
-	input type="submit" value="Abschicken"
+h1 Neuen Account anlegen
+form.register.form action="/account/new" method="POST"
+	- if @errors.any?
+		div.error
+			ul
+				- @errors.each do |error|
+					li: strong #{error}
+
+	div
+		label for="username" Benutzername *
+		input#username type="text" name="login_name" value="#{@values[:login_name]}" maxlength="15"
+	div
+		label for="password" Passwort *
+		input#password type="password" name="login_pass" maxlength="255"
+	div
+		label for="password_repeat" Passwort wiederholen *
+		input#password_repeat type="password" name="login_pass_repeat" maxlength="255"
+	div
+		label for="anzeigename" Anzeigename *
+		input#anzeigename type="text" name="name" value="#{@values[:name]}" maxlength="15"
+	div
+		span * Pflichtfeld
+	input.button type="submit" value="Abschicken"

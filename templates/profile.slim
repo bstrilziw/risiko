@@ -19,6 +19,9 @@ form.edit.form action="/profile" method="POST"
 		label for="username" Benutzername *
 		input#username type="text" name="login_name" value="#{@values[:login_name]}" maxlength="15"
 	div
+		label for="mail" E-Mail *
+		input#mail type="text" name="mail" value="#{@values[:mail]}" maxlength="255"
+	div
 		label for="password" Passwort
 		input#password type="password" name="login_pass" maxlength="255"
 	div

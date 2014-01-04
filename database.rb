@@ -8,6 +8,7 @@ class Account
 	property :login_name, String
 	property :password, String
 	property :name, String
+	property :mail, String
 	property :number, Integer
 	has n, :countries, 'Country'
 	belongs_to :game, :required => false # -> game.players
@@ -50,8 +51,8 @@ DataMapper.finalize
 DataMapper.auto_migrate!
 
 # Testdatensaetze
-Account.create(login_name: "admin", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", name: "ADM1N")
-Account.create(login_name: "user", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", name: "USER")
+Account.create(login_name: "admin", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", mail: "admin@internerz.de", name: "ADM1N")
+Account.create(login_name: "user", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", mail: "user@internerz.de", name: "USER")
 
 # DataMapper unabhaengige Methoden
 class Game

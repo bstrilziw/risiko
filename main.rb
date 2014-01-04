@@ -3,6 +3,7 @@ require 'sinatra/reloader' if development?
 require 'slim'
 require 'json'
 require 'digest'
+require 'pony'
 
 require_relative 'helpers'
 require_relative 'db_helpers'
@@ -357,7 +358,6 @@ end
 get '/login' do
 	redirect '/' if logged_in?
   # Login-Formular
-	
   slim :login	
 end
 
@@ -395,7 +395,7 @@ get '/logout' do
 end
 
 get '/account/new' do #Neue Accounts
-	@values = Hash[:login_name, "", :name, ""]
+	@values = Hash[:login_name, "", :name, "", :mail, ""]
 	slim :new_account
 end
 
@@ -406,6 +406,9 @@ post '/account/new' do
 	# pruefe, ob alle Werte gesetzt sind
 	if params[:login_name] == ""
 		@errors << "Bitte gib einen Benutzernamen ein."
+	end
+	if params[:mail] == "" || !/\A([\w\.\-\+]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i.match(params[:mail])
+		@errors << "Bitte gib eine gueltige E-Mail-Adresse ein."
 	end
 	if params[:login_pass] == ""
 		@errors << "Bitte gib ein Passwort ein."
@@ -420,6 +423,11 @@ post '/account/new' do
 	# pruefen, ob Benutzername bereits vergeben ist
 	if !Account.first(login_name: params[:login_name]).nil?
 		@errors << "Der Benutzername #{params[:login_name]} ist bereits vergeben."
+	end
+	
+	# pruefen, ob E-Mail-Adresse bereits vergeben ist
+	if !Account.first(mail: params[:mail]).nil?
+		@errors << "Die E-Mailadresse #{params[:mail]} ist bereits einem anderen Benutzer zugeordnet."
 	end
 
 	# pruefen, ob Anzeigenamne bereits vergeben ist
@@ -436,6 +444,9 @@ post '/account/new' do
 	if params[:login_name].length > 15
 		@errors  << "Der Benutzername darf nur 15 Zeichen lang sein."
 	end
+	if params[:mail].length > 255
+		@errors << "Deine E-Mail-Adresse ist zu lang, bitte waehle eine, das max. 255 Zeichen hat."
+	end
 	if params[:login_pass].length > 255
 		@errors << "Das Passwort ist zu lang, bitte waehle eins, das max. 255 Zeichen hat."
 	end
@@ -445,13 +456,30 @@ post '/account/new' do
 
 	# keine Fehler? Dann sollten alle Daten stimmen, Account wird angelegt
 	if @errors.empty?
-#		password = params[:login_pass]
 		password = Digest::SHA1.hexdigest(params[:login_pass]) # see: http://ruby.about.com/od/advancedruby/ss/Cryptographic-Hashes-In-Ruby.htm
-		account = Account.create(login_name: params[:login_name], password: password, name: params[:name])
+		account = Account.create(login_name: params[:login_name], password: password, mail: params[:mail], name: params[:name])
 		
 		if account != nil
 			if account.saved?
 				@errors << "Der Account #{params[:login_name]} wurde angelegt."
+				
+				# verschicke E-Mail
+				body = "Hallo #{params[:name]},\n\nherzlich Willkommen bei Risiko. Du hast dich erfolgreich registriert und kannst dich jetzt mit deinem Benutzernamen <strong>#{params[:login_name]}</strong> und deinem Passwort <a href=\"http://localhost:4567/login\">hier anmelden</a>.\n\nViel Spass beim Spielen,\ndein Risiko-Team"
+				Pony.mail(
+					:to => params[:mail], 
+					:from => 'risiko@internerz.de', 
+					:subject => 'Registrierung bei Risiko', 
+					:body => body, 
+					:via => :smtp,
+					:via_options => {
+						:address        => 'mailtrap.io',
+						:port           => '25',
+						:user_name      => 'risiko-31a0f2d30dd35176',
+						:password       => 'c6661a2e4b9b21ab',
+						:authentication => :plain,
+						:domain         => "localhost"
+					}
+				)
 			else
 				@errors << "Account konnte nicht erstellt werden."
 			end

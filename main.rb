@@ -2,6 +2,7 @@ require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'slim'
 require 'json'
+require 'digest'
 
 require_relative 'helpers'
 require_relative 'db_helpers'
@@ -366,7 +367,7 @@ post '/login' do
 
 		account = Account.first( :login_name => params[:login_name] )
 
-		if account.nil? || account.password != params[:login_pass]
+		if account.nil? || account.password != Digest::SHA1.hexdigest(params[:login_pass])
 			# Benutzername oder Passwort ungueltig
 			@login_info = "Benutzername, oder Passwort ung&uuml;ltig" # UNUSED
 
@@ -443,7 +444,10 @@ post '/account/new' do
 
 	# keine Fehler? Dann sollten alle Daten stimmen, Account wird angelegt
 	if @errors.empty?
-		account = Account.create(login_name: params[:login_name], password: params[:login_pass], name: params[:name])
+#		password = params[:login_pass]
+		password = Digest::SHA1.hexdigest(params[:login_pass]) # see: http://ruby.about.com/od/advancedruby/ss/Cryptographic-Hashes-In-Ruby.htm
+		account = Account.create(login_name: params[:login_name], password: password, name: params[:name])
+		
 		if account != nil
 			if account.saved?
 				@errors.push("Der Account #{params[:login_name]} wurde angelegt.")

@@ -1,5 +1,11 @@
 h1 Anmelden
 form.login.form action="/login" method="POST"
+	- if !@errors.nil?
+		div.error
+			ul
+				- @errors.each do |error|
+					li: strong #{error}
+
 	div
 		label for="username" Benutzername:
 		input#username type="text" name="login_name"

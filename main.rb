@@ -357,11 +357,14 @@ end
 get '/login' do
 	redirect '/' if logged_in?
   # Login-Formular
+	@errors = Array.new
+	
   slim :login	
 end
 
 post '/login' do
 	# Session-basiertes Login-System
+	@errors = Array.new
 	halt 500, "Sie sind bereits eingeloggt." if logged_in?
 	if !params[:login_name].nil? && !params[:login_pass].nil?
 
@@ -369,9 +372,9 @@ post '/login' do
 
 		if account.nil? || account.password != Digest::SHA1.hexdigest(params[:login_pass])
 			# Benutzername oder Passwort ungueltig
-			@login_info = "Benutzername, oder Passwort ung&uuml;ltig" # UNUSED
-
-			redirect '/login'
+			@errors.push("Benutzername oder Passwort ungueltig")
+			
+			slim :login
 		else
 			# Login-Informationen korrekt
 			session[:account_id] = account.id
@@ -381,7 +384,7 @@ post '/login' do
 			# TODO: neue Seite anzeigen, nachdem man eingeloggt ist?
 			# 		oder gleiche Seite umgestalten? <<- gleiche Seite umgestalten, Feedback fürs Einloggen erhalten
 			# 		z.b. "Willkommen Fafnir!"
-			redirect '/'
+			redirect '/profile'
 		end
 	end
 end

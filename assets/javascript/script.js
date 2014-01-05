@@ -98,8 +98,30 @@ $(document).ready(function() {
 		// Verschiebungsphase
 		else if (phase === 2) {
 			if (owner[name(this)] !== playerName) {
-				return;
+				destroyUnitPicker();
+				selectedLand1 = null;
+				selectedLand2 = null;
 			}
+			else if (selectedLand1 === null || !connectedToLand1[name(this)]) {
+				selectedLand1 = this;
+				calculateConnections();
+				showUnitPicker(this.id);
+				selectedLand2 = null;
+			}
+			else if (connectedToLand1[name(this)]) {
+				selectedLand2 = this;
+				updateHighlight();
+				$.ajax({
+					type: "POST",
+					url: "/update/transfer",
+					data: {source: name(selectedLand1), target: name(selectedLand2), units: $('#unitpicker input').val().toString()}
+				});
+				destroyUnitPicker();
+				selectedLand1 = null;
+				selectedLand2 = null;
+				update();
+			}
+			updateHighlight();
 		}
 	});
 
@@ -136,7 +158,7 @@ $(document).ready(function() {
 		$("#posts").animate({scrollTop: 10000}, 'fast');
 	});
 	$(".chatbox").toggle();
-	
+
 	timer();
 });
 
@@ -308,7 +330,11 @@ function updateHighlight() {
 	}
 	else if (phase === 2) {
 		$('.land').each(function() {
-			$(this).css('fill', getColorToName(owner[name(this)]));
+			if (selectedLand1 === null || (selectedLand2 === null && connectedToLand1[name(this)]) || selectedLand1 === this || selectedLand2 === this) {
+				$(this).css('fill', getColorToName(owner[name(this)]));
+			} else {
+				$(this).css('fill', '#888');
+			}
 		});
 	}
 	else if (phase === 3) {
@@ -333,4 +359,35 @@ function showUnitPicker(element) {
 
 function destroyUnitPicker() {
 	$('#unitpicker input').spinner("destroy").parent().remove();
+}
+
+var connectedToLand1 = new Object();
+
+function calculateConnections() {
+	// Alle Länder des Spielers ermitteln
+	for (var landName in owner) {
+		if (owner[landName] === playerName) {
+			if (landName === name(selectedLand1)) {
+				connectedToLand1[landName] = true;
+			} else {
+				connectedToLand1[landName] = false;
+			}
+		}
+	}
+	console.log(connectedToLand1);
+	// Solange iterieren, bis sich nichts mehr veraendert
+	var change = true;
+	while (change) {
+		change = false;
+		for (var landName in connectedToLand1) {
+			if (connectedToLand1[landName] === true) {
+				for (var i in neighbors[landName]) {
+					if (owner[neighbors[landName][i]] === playerName && !connectedToLand1[neighbors[landName][i]]) {
+						change = true;
+						connectedToLand1[neighbors[landName][i]] = true;
+					}
+				}
+			}
+		}
+	}
 }

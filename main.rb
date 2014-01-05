@@ -309,17 +309,7 @@ post '/update/phase' do # Spieler hat am Ende einer Phase auf Bestaetigen geklic
 	account = get_account
 	game = get_game
 	halt 500, "Sie sind nicht an der Reihe." unless account == game.active_player
-	game.phase += 1
-	if game.phase == 3
-		game.phase = 0
-		# naechsten Spieler waehlen
-		game.set_next_player_active
-	end
-	if game.phase == 0
-		# verfuegbare Einheiten berechnen
-		game.placeable_units = account.countries.length / 3
-		game.placeable_units = 3 if game.placeable_units < 3
-	end
+	game.set_next_phase
 	game.save
 	halt 500, "Fehler beim Speichern." unless game.saved?
 	status 200
@@ -376,6 +366,53 @@ post '/update/attack' do
 		target.update(unit_count: units - target.unit_count, account: source.account)
 	end
 	source.update(unit_count: source.unit_count - units)
+	""
+end
+
+post '/update/transfer' do
+	halt 500, "Fehler: Sie sind nicht eingeloggt." unless logged_in?
+	account = get_account
+	game = get_game
+	halt 500, "Sie sind nicht an der Reihe." unless account == game.active_player
+	halt 500, "Fehler: ungueltige Daten." if params[:source].nil? || params[:target].nil? || params[:units].nil?
+	source = game.countries.first(name: params[:source])
+	halt 500, "Es gibt dieses Land nicht: #{params[:source]}" if source.nil?
+	halt 500, "Dieses Land gehoert ihnen nicht: #{params[:source]}" unless source.account == account
+	target = game.countries.first(name: params[:target])
+	halt 500, "Es gibt dieses Land nicht: #{params[:target]}" if target.nil?
+	halt 500, "Dieses Land gehoert ihnen nicht: #{params[target]}" unless target.account == account
+	halt 500, "Zu wenige Einheiten." if source.unit_count <= 1
+	units = params[:units].to_i
+	halt 500, "Ungueltige Einheitenzahl." unless units < source.unit_count && units > 0
+	land_verbunden = Hash.new
+	# Alle Länder des Spielers ermitteln
+	game.countries(account: account).each do |land|
+		if land == source
+			land_verbunden[land] = true
+		else
+			land_verbunden[land] = false
+		end
+	end
+	# Solange iterieren, bis sich nichts mehr veraendert
+	change = true
+	while change do
+		change = false
+		land_verbunden.each do |land, verbunden|
+			if verbunden
+				land.neighbors.each do |neighbor|
+					if neighbor.account == account && land_verbunden[neighbor] == false
+						change = true
+						land_verbunden[neighbor] = true
+						break if neighbor = target
+					end
+				end
+			end
+		end
+	end
+	halt 500, "Dieses Land ist nicht zu erreichen #{target.name}" if land_verbunden[target] == false
+	source.update(unit_count: source.unit_count - units)
+	target.update(unit_count: target.unit_count + units)
+	game.set_next_phase
 	""
 end
 

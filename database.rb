@@ -60,6 +60,7 @@ class Game
 	def calculate_units
 		self.placeable_units = self.active_player.countries.length / 3
 		self.placeable_units = 3 if self.placeable_units < 3
+		self.save
 	end
 	
 	# naechsten Spieler aktiv setzen
@@ -69,5 +70,21 @@ class Game
 		else
 			self.active_player = self.players(order: [:number.asc])[self.active_player.number]
 		end
+		self.save
+	end
+	
+	# zur naechsten Phase wechseln
+	def set_next_phase
+			self.phase += 1
+		if self.phase == 3
+			self.phase = 0
+			# naechsten Spieler waehlen
+			self.set_next_player_active
+		end
+		if self.phase == 0
+			# verfuegbare Einheiten berechnen
+			self.calculate_units
+		end
+		self.save
 	end
 end

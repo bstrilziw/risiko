@@ -355,6 +355,7 @@ function showUnitPicker(element) {
 
 	$('.content').append('<div id="unitpicker" style="top: ' + (path_bbox.y + path_bbox.height + worldmap_margin_top) + 'px; left: ' + (path_bbox.x + (path_bbox.width / 2) - 30) + 'px"><input value="1" /></div>');
 	$('#unitpicker input').spinner({min: 1, max: max}).focus();
+	$('#unitpicker input').val(max);
 }
 
 function destroyUnitPicker() {
@@ -374,7 +375,6 @@ function calculateConnections() {
 			}
 		}
 	}
-	console.log(connectedToLand1);
 	// Solange iterieren, bis sich nichts mehr veraendert
 	var change = true;
 	while (change) {

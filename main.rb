@@ -361,14 +361,18 @@ post '/update/attack' do
 	halt 500, "Zu wenige Einheiten." if source.unit_count <= 1
 	units = params[:units].to_i
 	halt 500, "Ungueltige Einheitenzahl." unless units < source.unit_count && units > 0
-	if units < target.unit_count
-		target.update(unit_count: target.unit_count - units)
-	elsif units == target.unit_count
-		target.update(unit_count: 1)
-	elsif units > target.unit_count
-		target.update(unit_count: units - target.unit_count, account: source.account)
-	end
 	source.update(unit_count: source.unit_count - units)
+	units.times do
+		if rand(6) > rand(6)
+			target.update(unit_count: target.unit_count - 1)
+		else
+			units -= 1
+		end
+		if target.unit_count == 0
+			target.update(unit_count: units, account: source.account)
+			break
+		end
+	end
 	""
 end
 

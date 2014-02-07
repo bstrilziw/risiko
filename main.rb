@@ -126,7 +126,9 @@ get '/game/join/:game_name' do
 	halt 500, "Dises Spiel existiert nicht." if game.nil?
 	account = get_account
 	redirect '/lobby' if account.game == game
+	redirect 'list' if game.players.count == game.maximum_players
 	halt 500, "Sie sind bereits in einem Spiel." unless account.game.nil?
+	halt 500, "Spiel laeuft bereits." if game.running
 	account.update(game: game, number: game.players.length+1)
 	
 	redirect '/lobby'
@@ -138,6 +140,7 @@ get '/game/start' do
 	redirect '/game' if game.running
 	# auf Berechtigung zum Starten ueberpruefen
 	redirect '/lobby' if get_account != game.players(order: [:number.asc]).first
+	redirect '/lobby' if game.players.count < 2
 	game.update(running: true, active_player: game.players(order: [:number.asc]).first)
 	
 	# Laender erstellen

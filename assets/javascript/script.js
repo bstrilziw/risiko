@@ -144,6 +144,29 @@ $(document).ready(function() {
 		$(this).parent().toggleClass('open');
 		return false;
 	});
+	
+	//Regeln
+	$("#regeln").click(function() {
+		$(".regeln").toggle('clip', 'fast');
+	});
+	
+	$(".regeln").toggle();
+	
+	$(".regeln2").accordion({
+		heightStyle: "content"
+    });
+	
+	$(".regeln2").accordion({
+		collapsible: true
+    });
+	
+	$(".phase2").accordion({
+		heightStyle: "content"
+    });
+	
+	$(".phase2").accordion({
+		collapsible: true
+    });
 
 	// schließt das Menü, falls man irgendwo hinklickt
 	$('body').bind('click', function() {

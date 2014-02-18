@@ -1,0 +1,30 @@
+.regeln {
+	background-color: #cbc7bd;
+	height: 500px;
+	width: 1000px;	
+	float: right;
+	position:fixed;
+    top: 100px;
+    right: 390px;
+	border-width:2px;
+	border-style:solid;
+	border-color:black;
+	color: black;
+	opacity: 0.99;
+	overflow:auto;
+	z-index: 1;
+}
+
+#headline {
+	color: #5a81af;
+	font-weight: bold;
+	font-size: 250%;
+	height: 40px;
+	text-align: center;
+	margin-top: 15px;
+}
+
+.table {
+	border: 1px solid black;
+}
+

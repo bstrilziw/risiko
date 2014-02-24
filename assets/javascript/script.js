@@ -150,6 +150,10 @@ $(document).ready(function() {
 		$(".regeln").toggle('clip', 'fast');
 	});
 	
+	$("#exit").click(function() {
+		$(".regeln").toggle('clip', 'fast');
+	});
+	
 	$(".regeln").toggle();
 	
 	$(".regeln2").accordion({

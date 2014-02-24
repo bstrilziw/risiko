@@ -57,10 +57,49 @@ Account.create(login_name: "user", password: "da39a3ee5e6b4b0d3255bfef95601890af
 
 # DataMapper unabhaengige Methoden
 class Game
+	# pruefen, ob dem aktiven Spieler eine Reihe von Laendern gehoert
+	def has_countries country_names
+		country_names.each do |name|
+			country = self.countries.first(name: name)
+			if country.account != active_player
+				return false
+			end
+		end
+		return true
+	end
+	
 	# verfuegbare Einheiten berechnen
 	def calculate_units
 		self.placeable_units = self.active_player.countries.length / 3
 		self.placeable_units = 3 if self.placeable_units < 3
+		# Kontinent-Boni		
+		# Nord-Amerika
+		if has_countries ["alaska","alberta","weststaaten","mittel-amerika",
+				"nordwest-territorium","ontario","oststaaten","quebec", "groenland"]
+			self.placeable_units += 5
+		end
+		# Sued-Amerika
+		if has_countries ["venezuela", "peru", "brasilien", "argentinien"]
+			self.placeable_units += 2
+		end
+		# Afrika
+		if has_countries ["nordwest-afrika","aegypten","ost-afrika","kongo","sued-afrika","madagaskar"]
+			self.placeable_units += 3
+		end
+		# Europa
+		if has_countries ["island", "skandinavien", "ukraine", "gross-britannien",
+				"mittel-europa", "west-europa", "sued-europa"]
+			self.placeable_units += 5
+		end
+		# Asien
+		if has_countries ["mittlerer-osten", "afghanistan", "ural", "sibirien", "jakutien",
+				"kamtschatka", "irkutsk", "mongolei", "japan", "china", "indien", "siam"]
+			self.placeable_units += 7
+		end
+		# Ozeanien
+		if has_countries ["indonesien", "neu-guinea", "ost-australien", "west-australien"]
+			self.placeable_units += 2
+		end
 		self.save
 	end
 	
@@ -76,7 +115,7 @@ class Game
 	
 	# zur naechsten Phase wechseln
 	def set_next_phase
-			self.phase += 1
+		self.phase += 1
 		if self.phase == 3
 			self.phase = 0
 			# naechsten Spieler waehlen

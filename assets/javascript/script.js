@@ -4,6 +4,7 @@ var placeableUnits = 0;
 var playerName;
 var selectedLand1 = null, selectedLand2 = null;
 var unitCount = new Object(), owner = new Object();
+var hasClickedOnRules = false;
 
 $(document).ready(function() {
 	headerMenu = $('#menu');
@@ -144,39 +145,47 @@ $(document).ready(function() {
 		$(this).parent().toggleClass('open');
 		return false;
 	});
-	
+
 	//Regeln
 	$("#regeln").click(function() {
 		$(".regeln").toggle('clip', 'fast');
+		hasClickedOnRules = true;
 	});
-	
+
 	$("#exit").click(function() {
 		$(".regeln").toggle('clip', 'fast');
 	});
-	
+
 	$(".regeln").toggle();
-	
+
 	$(".regeln2").accordion({
 		heightStyle: "content"
-    });
-	
+	});
+
 	$(".regeln2").accordion({
 		collapsible: true
-    });
-	
+	});
+
 	$(".phase2").accordion({
 		heightStyle: "content"
-    });
-	
+	});
+
 	$(".phase2").accordion({
 		collapsible: true
-    });
+	});
+	
+	$('.regeln').click( function() {
+		hasClickedOnRules = true;
+	});
 
 	// schließt das Menü, falls man irgendwo hinklickt
 	$('body').bind('click', function() {
 		if (headerMenu.hasClass('open')) {
 			headerMenu.removeClass('open');
 		}
+		if (!hasClickedOnRules && $('.regeln').css('display') === "block")
+			$(".regeln").toggle('clip', 'fast');
+		hasClickedOnRules = false;
 	});
 
 	// Chat-Toggle

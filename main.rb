@@ -152,7 +152,7 @@ get '/game/start' do
 		"alberta" => {country: nil, neighbors: ["alaska", "nordwest-territorium", "weststaaten", "ontario"]},
 		"weststaaten" => {country: nil, neighbors: ["alberta", "mittel-amerika", "ontario", "oststaaten"]},
 		"mittel-amerika" => {country: nil, neighbors: ["weststaaten", "oststaaten", "venezuela"]},
-		"nordwest-territorium" => {country: nil, neighbors: ["alaska", "alberta", "groenland"]},
+		"nordwest-territorium" => {country: nil, neighbors: ["alaska", "alberta", "groenland", "ontario"]},
 		"ontario" => {country: nil, neighbors: ["nordwest-territorium", "alberta", "weststaaten",
 				"oststaaten", "quebec", "groenland"]},
 		"oststaaten" => {country: nil, neighbors: ["weststaaten", "mittel-amerika", "ontario", "quebec"]},
@@ -197,9 +197,9 @@ get '/game/start' do
 		"siam" => {country: nil, neighbors: ["china", "indien", "indonesien"]},
 			
 		# Ozeanien
-		"indonesien" => {country: nil, neighbors: ["siam", "neu-guinea", "ost-australien", "west-australien"]},
+		"indonesien" => {country: nil, neighbors: ["siam", "neu-guinea", "west-australien"]},
 		"neu-guinea" => {country: nil, neighbors: ["indonesien", "ost-australien"]},
-		"ost-australien" => {country: nil, neighbors: ["indonesien", "neu-guinea", "west-australien"]},
+		"ost-australien" => {country: nil, neighbors: ["neu-guinea", "west-australien"]},
 		"west-australien" => {country: nil, neighbors: ["indonesien", "ost-australien"]}
 	}
 	

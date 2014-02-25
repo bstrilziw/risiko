@@ -158,20 +158,9 @@ $(document).ready(function() {
 
 	$(".regeln").toggle();
 
-	$(".regeln2").accordion({
+	$(".regeln2, .phase2").accordion({
+		collapsible: true,
 		heightStyle: "content"
-	});
-
-	$(".regeln2").accordion({
-		collapsible: true
-	});
-
-	$(".phase2").accordion({
-		heightStyle: "content"
-	});
-
-	$(".phase2").accordion({
-		collapsible: true
 	});
 	
 	$('.regeln').click( function() {

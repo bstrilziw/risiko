@@ -44,7 +44,19 @@ get '/lobby' do
 	redirect '/game' if account.game.running
 	
 	@players = account.game.players(order: [:number.asc])
+	@is_host = account == @players.first
 	slim :lobby
+end
+
+get '/updatePlayerList' do
+	halt 500, "no access" unless logged_in?
+	game = get_game
+	
+	players = Array.new
+	game.players(order: [:number.asc]).each do |player|
+		players << player.name
+	end
+	players.to_json
 end
 
 get '/game' do

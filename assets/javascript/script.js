@@ -5,9 +5,19 @@ var playerName;
 var selectedLand1 = null, selectedLand2 = null;
 var unitCount = new Object(), owner = new Object();
 var hasClickedOnRules = false;
+var site;
 
 $(document).ready(function() {
 	headerMenu = $('#menu');
+
+	// Seite erkennen
+	site = $('#site_identifier').html();
+	if (typeof site === "undefined")
+		site = "unknown";
+	else
+		site = site.trim();
+
+	console.log(site);
 
 	$('.land').mouseenter(function() {
 		// Land hervorheben
@@ -162,8 +172,8 @@ $(document).ready(function() {
 		collapsible: true,
 		heightStyle: "content"
 	});
-	
-	$('.regeln').click( function() {
+
+	$('.regeln').click(function() {
 		hasClickedOnRules = true;
 	});
 
@@ -189,11 +199,29 @@ $(document).ready(function() {
 
 // Timer für Update
 function timer() {
-	update();
-	updateChat();
+	if (site === "game") {
+		update();
+		updateChat();
+	} else if (site === "lobby") {
+		updateLobby();
+	}
 	setTimeout(function() {
 		timer();
-	}, 5000);
+	}, 3000);
+}
+
+function updateLobby() {
+	$.ajax({
+		type: "GET",
+		url: "/updatePlayerList",
+		success: function(data) {
+			data = JSON.parse(data);
+			$("#playerlist").empty();
+			for (var i = 0; i < data.length; i++) {
+				$("#playerlist").append("<li>" + data[i] + "</li>");
+			}
+		}
+	});
 }
 
 function updateChat() {

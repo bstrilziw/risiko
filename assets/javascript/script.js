@@ -194,6 +194,8 @@ $(document).ready(function() {
 	});
 	$(".chatbox").toggle();
 
+	$(".fancybox").fancybox();
+
 	timer();
 });
 

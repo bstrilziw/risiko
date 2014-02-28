@@ -11,3 +11,21 @@ div.content {
 		}
 	}
 }
+
+.columns {
+	.column {
+		float: left;
+	}
+
+	.column1 {
+		width: 30%;
+	}
+
+	.column2 {
+		width: 70%;
+
+		.screenshots {
+			float: right;
+		}
+	}
+}

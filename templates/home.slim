@@ -1,5 +1,15 @@
 - unless logged_in?
-	h1 Anmelden
-	== slim :login_form
+	div.columns.ui-helper-clearfix
+		div.column.column1
+			h1 Anmelden
+			== slim :login_form
+
+		div.column.column2
+			div.screenshots
+				a.fancybox rel="gallery1" href="/images/screenshots/screen1.png" title="Westfield Waterfalls - Middletown CT Lower (Graham_CS)"
+					img src="/images/screenshots/screen1_t.jpg"
+				a.fancybox rel="gallery1" href="/images/screenshots/screen2.png" title="Calm Before The Storm (One Shoe Photography Ltd.)"
+					img src="/images/screenshots/screen2_t.jpg"
+
 - else
 	== slim :account

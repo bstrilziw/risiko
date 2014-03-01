@@ -218,9 +218,11 @@ function updateLobby() {
 		url: "/updatePlayerList",
 		success: function(data) {
 			data = JSON.parse(data);
+			if (data.game_started)
+				location.reload();
 			$("#playerlist").empty();
-			for (var i = 0; i < data.length; i++) {
-				$("#playerlist").append("<li>" + data[i] + "</li>");
+			for (var i = 0; i < data.players.length; i++) {
+				$("#playerlist").append("<li>" + data.players[i] + "</li>");
 			}
 		}
 	});
@@ -273,15 +275,19 @@ function updatePhaseText() {
 	switch (phase) {
 		case 0:
 			$('#phase').text("Verteilen Sie ihre Einheiten. (" + placeableUnits + ")");
+			$('#button_next_phase').removeAttr("disabled");
 			break;
 		case 1:
 			$('#phase').text("Angriff durchfuehren.");
+			$('#button_next_phase').removeAttr("disabled");
 			break;
 		case 2:
 			$('#phase').text("Einheiten verschieben.");
+			$('#button_next_phase').removeAttr("disabled");
 			break;
 		case 3:
 			$('#phase').text("Warten...");
+			$('#button_next_phase').attr("disabled", "disabled");
 			break;
 	}
 }

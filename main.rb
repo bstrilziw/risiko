@@ -56,7 +56,7 @@ get '/updatePlayerList' do
 	game.players(order: [:number.asc]).each do |player|
 		players << player.name
 	end
-	players.to_json
+	{game_started: game.running, players: players}.to_json
 end
 
 get '/game' do

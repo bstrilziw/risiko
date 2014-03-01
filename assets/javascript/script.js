@@ -10,14 +10,27 @@ var site;
 $(document).ready(function() {
 	headerMenu = $('#menu');
 
+	$('#toggleFullscreen').click(function() {
+		if (!$(this).hasClass('open')) {
+			$(document).fullScreen(true);
+			$(this).addClass('open');
+		} else {
+			$(document).fullScreen(false);
+		}
+	});
+
+	$(document).bind("fullscreenchange", function() {
+	    if (!$(document).fullScreen()) {
+			$('#toggleFullscreen').removeClass('open');	    	
+	    }
+	});
+
 	// Seite erkennen
 	site = $('#site_identifier').html();
 	if (typeof site === "undefined")
 		site = "unknown";
 	else
 		site = site.trim();
-
-	console.log(site);
 
 	$('.land').mouseenter(function() {
 		// Land hervorheben

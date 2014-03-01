@@ -38,3 +38,17 @@ blockquote {
 		padding-left: 50px;
 	}
 }
+
+.toggleFullscreen {
+	position: absolute;
+	top: 0;
+	right: 30px;
+	width: 24px;
+	height: 19px;
+	background: url(../images/css/fullscreen.png);
+	cursor: pointer;
+
+	&.open {
+		background: url(../images/css/fullscreen_close.png);
+	}
+}

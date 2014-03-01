@@ -1,13 +1,14 @@
 div.chatbox {
-	background-color: #2B4552;
+	background-color: rgba(90, 129, 175, 0.9);
 	height: 210px;
 	max-width: 250px;	
 	position:fixed;
-    bottom: 45px;
-    left: 1165px;
-	border-width:2px;
-	border-style:solid;
-	border-color:black;
+    bottom: 29px;
+    right: 20px;
+	border-width: 2px;
+	border-style: solid;
+	border-color: black;
+	color: black;
 }
 
 #posts {
@@ -17,7 +18,9 @@ div.chatbox {
 	max-width: 250px;
 }
 .button#toggle {
-	position:fixed;
-    bottom: 5px;
-    left: 1350px;
+	position: fixed;
+    bottom: 0;
+    right: 20px;
+    border: 2px solid black;
+    border-bottom: none;
 }

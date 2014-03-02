@@ -6,7 +6,7 @@
 	border: 1px solid darken($main-link-color, 20%);
 	cursor: pointer;
 	@include transition(background 0.2s ease-out);
-				
+	
 	&:hover {
 		text-decoration: none;
 		background: darken($main-link-color, 20%);

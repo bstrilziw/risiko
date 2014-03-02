@@ -1,10 +1,10 @@
 div.chatbox {
 	background-color: rgba(90, 129, 175, 0.9);
 	height: 210px;
-	max-width: 250px;	
+	max-width: 250px;
 	position:fixed;
-    bottom: 29px;
-    right: 20px;
+	bottom: 29px;
+	right: 20px;
 	border-width: 2px;
 	border-style: solid;
 	border-color: black;
@@ -19,8 +19,8 @@ div.chatbox {
 }
 .button#toggle {
 	position: fixed;
-    bottom: 0;
-    right: 20px;
-    border: 2px solid black;
-    border-bottom: none;
+	bottom: 0;
+	right: 20px;
+	border: 2px solid black;
+	border-bottom: none;
 }

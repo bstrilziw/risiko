@@ -11,7 +11,7 @@ require_relative 'db_helpers'
 configure do
 	Slim::Engine.set_default_options pretty: true, sort_attrs: true
 	set :views, :slim => 'templates', :scss => 'styles'
-  set :public_folder, 'assets'
+	set :public_folder, 'assets'
 	require_relative 'database'
 	enable :sessions
 end
@@ -60,7 +60,7 @@ get '/updatePlayerList' do
 end
 
 get '/game' do
-  redirect '/login' unless logged_in?
+	redirect '/login' unless logged_in?
 	account = get_account
 	redirect '/list' if account.game.nil?
 	redirect '/lobby' unless account.game.running
@@ -89,7 +89,7 @@ get '/game' do
 	@posts = Post.all().last(20)
 	
 	@players = account.game.players(order: [:number.asc])
-  slim :game
+	slim :game
 end
 
 get '/game/create' do
@@ -437,8 +437,8 @@ end
 
 get '/login' do
 	redirect '/' if logged_in?
-  # Login-Formular
-  slim :login
+	# Login-Formular
+	slim :login
 end
 
 post '/login' do

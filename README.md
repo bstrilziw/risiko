@@ -3,14 +3,14 @@ Risiko
 
 Unser Risiko-Klon läuft mit dem Ruby-Gem `sinatra` im Browser. Damit das Spiel lokal läuft, müssen die folgenden Gems installiert werden:
 
-    sinatra
-    sinatra-contrib
-    slim
-    json
-    digest
-    pony
-    dm-sqlite-adapter
-    data_mapper
+	sinatra
+	sinatra-contrib
+	slim
+	json
+	digest
+	pony
+	dm-sqlite-adapter
+	data_mapper
 
 Außerdem muss SQLite3 installiert sein: http://www.sqlite.org/download.html
 
@@ -20,12 +20,12 @@ Möchte man mit mehreren Spielern im gleichen Netzwerk spielen, muss man die IP-
 
 Vorhandene Benutzernamen sind: 
 
-    admin
-    benjamin
-    bjoern
-    hendrik
-    timo
-    tobias
-    user
+	admin
+	benjamin
+	bjoern
+	hendrik
+	timo
+	tobias
+	user
 
 Das Passwort bei der Anmeldung einfach leer lassen. Sie unterscheiden sich nicht von den Rechten, nur von den Anzeigenamen im Spiel. 

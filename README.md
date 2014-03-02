@@ -28,4 +28,4 @@ Vorhandene Benutzernamen sind:
     tobias
     user
 
-Sie unterscheiden sich nicht von den Rechten, nur von den Anzeigenamen im Spiel. 
+Das Passwort bei der Anmeldung einfach leer lassen. Sie unterscheiden sich nicht von den Rechten, nur von den Anzeigenamen im Spiel. 

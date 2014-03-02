@@ -13,6 +13,7 @@ configure do
 	set :views, :slim => 'templates', :scss => 'styles'
 	set :public_folder, 'assets'
 	require_relative 'database'
+	set :bind, '0.0.0.0'
 	enable :sessions
 end
 

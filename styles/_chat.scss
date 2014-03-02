@@ -16,6 +16,14 @@ div.chatbox {
 	min-height: 179px;
 	max-height: 180px;
 	max-width: 250px;
+
+	li {
+		list-style: none;
+		padding: 1px 3px;
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+	}
 }
 .button#toggle {
 	position: fixed;

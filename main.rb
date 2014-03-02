@@ -15,6 +15,8 @@ configure do
 	require_relative 'database'
 	set :bind, '0.0.0.0'
 	enable :sessions
+	set :bind, '0.0.0.0'
+	set :port, 80
 end
 
 get('/styles/styles.css') { scss :styles }

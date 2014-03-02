@@ -150,11 +150,10 @@ $(document).ready(function() {
 	});
 
 	$('#button_next_phase').click(function() {
-		if (phase === 3) // Button sollte disabled / ausgeblendet werden
+		if (phase === 3) 
 			return;
-		if (++phase === 4) {
-			phase = 0;
-		}
+		phase = 3; //warten
+		
 		updatePhaseText();
 		$.ajax({
 			type: "POST",
@@ -251,6 +250,7 @@ function updateChat() {
 			for (var i = 0; i < data.length; i++) {
 				$("#posts").append("<li>" + data[i] + "</li>");
 			}
+			$("#posts").animate({ scrollTop: $(document).height() }, "slow");
 		}
 	});
 }

@@ -53,6 +53,11 @@ DataMapper.auto_migrate!
 
 # Testdatensaetze
 Account.create(login_name: "admin", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", mail: "admin@internerz.de", name: "ADM1N")
+Account.create(login_name: "benjamin", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", mail: "user@internerz.de", name: "BENNI")
+Account.create(login_name: "bjoern", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", mail: "bjoern@internerz.de", name: "BJOERN")
+Account.create(login_name: "hendrik", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", mail: "hendrik@internerz.de", name: "HENDRIK")
+Account.create(login_name: "timo", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", mail: "timo@internerz.de", name: "TIMO")
+Account.create(login_name: "tobias", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", mail: "tobias@internerz.de", name: "TOBI")
 Account.create(login_name: "user", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", mail: "user@internerz.de", name: "USER")
 
 # DataMapper unabhaengige Methoden

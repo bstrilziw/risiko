@@ -58,10 +58,10 @@ $(document).ready(function() {
 			$.ajax({
 				type: "POST",
 				url: "/update/new_unit",
-				data: {data: JSON.stringify(new Array(
-					{land_name: name(this),
-						unit_count: 1}
-						))}
+				data: {data: JSON.stringify(new Array({
+					land_name: name(this),
+					unit_count: 1
+				}))}
 			});
 			placeableUnits--;
 			// Beschriftung updaten
@@ -149,7 +149,7 @@ $(document).ready(function() {
 		}
 	});
 
-$('#button_next_phase').click(function() {
+	$('#button_next_phase').click(function() {
 		if (phase === 3) // Button sollte disabled / ausgeblendet werden
 			return;
 		if (++phase === 4) {

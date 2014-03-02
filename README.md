@@ -29,3 +29,5 @@ Vorhandene Benutzernamen sind:
 	user
 
 Das Passwort bei der Anmeldung einfach leer lassen. Sie unterscheiden sich nicht von den Rechten, nur von den Anzeigenamen im Spiel. 
+
+![Risiko Klon](https://raw.github.com/bstrilziw/risiko/master/assets/images/screenshots/screen2.png)

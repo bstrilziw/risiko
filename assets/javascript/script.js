@@ -6,6 +6,7 @@ var selectedLand1 = null, selectedLand2 = null;
 var unitCount = new Object(), owner = new Object();
 var hasClickedOnRules = false;
 var site;
+var updateCounter = 0;
 
 $(document).ready(function() {
 	headerMenu = $('#menu');
@@ -75,6 +76,7 @@ $(document).ready(function() {
 					url: "/update/phase"
 				});
 			}
+			updateCounter++;
 			updatePhaseText();
 		}
 		// Angriffsphase
@@ -111,6 +113,7 @@ $(document).ready(function() {
 						url: "/update/attack",
 						data: {source: name(selectedLand1), target: name(selectedLand2), units: $('#unitpicker input').val().toString()}
 					});
+					updateCounter++;
 					destroyUnitPicker();
 					selectedLand1 = null;
 					selectedLand2 = null;
@@ -140,6 +143,7 @@ $(document).ready(function() {
 					url: "/update/transfer",
 					data: {source: name(selectedLand1), target: name(selectedLand2), units: $('#unitpicker input').val().toString()}
 				});
+				updateCounter++;
 				destroyUnitPicker();
 				selectedLand1 = null;
 				selectedLand2 = null;
@@ -153,6 +157,7 @@ $(document).ready(function() {
 		if (phase === 3) 
 			return;
 		phase = 3; //warten
+		updateCounter++;
 		
 		updatePhaseText();
 		$.ajax({
@@ -259,9 +264,12 @@ function update() {
 	$.ajax({
 		type: "GET",
 		url: "/update",
+		data: {updateCount: updateCounter},
 		success: function(data) {
 			// Daten verarbeiten
 			data = JSON.parse(data);
+			if (data.updateCount < updateCounter)
+				return;
 			// Laender aktualisieren
 			for (var i = 0; i < data.mapdata.length; i++) {
 				var land = data.mapdata[i];
@@ -337,7 +345,7 @@ var neighbors = {
 	"alberta": ["alaska", "nordwest-territorium", "weststaaten", "ontario"],
 	"weststaaten": ["alberta", "mittel-amerika", "ontario", "oststaaten"],
 	"mittel-amerika": ["weststaaten", "oststaaten", "venezuela"],
-	"nordwest-territorium": ["alaska", "alberta", "groenland"],
+	"nordwest-territorium": ["alaska", "alberta", "groenland", "ontario"],
 	"ontario": ["nordwest-territorium", "alberta", "weststaaten",
 	"oststaaten", "quebec", "groenland"],
 	"oststaaten": ["weststaaten", "mittel-amerika", "ontario", "quebec"],
@@ -377,9 +385,9 @@ var neighbors = {
 	"indien": ["mittlerer-osten", "afghanistan", "china", "siam"],
 	"siam": ["china", "indien", "indonesien"],
 	// Ozeanien
-	"indonesien": ["siam", "neu-guinea", "ost-australien", "west-australien"],
+	"indonesien": ["siam", "neu-guinea", "west-australien"],
 	"neu-guinea": ["indonesien", "ost-australien"],
-	"ost-australien": ["indonesien", "neu-guinea", "west-australien"],
+	"ost-australien": ["neu-guinea", "west-australien"],
 	"west-australien": ["indonesien", "ost-australien"]
 };
 

@@ -264,6 +264,12 @@ get '/update' do # Spieldaten abfragen
 	halt 500, "Keine Informationen verfuegbar." unless logged_in?
 	halt 404 if !request.xhr? # kein AJAX Aufruf?
 	
+	if params[:updateCount].nil?
+		updateCount = 0 
+	else 
+		updateCount = params[:updateCount]
+	end
+	
 	# Allgemeine Spielinformationen
 	game = get_game
 	active_player = game.active_player
@@ -284,7 +290,7 @@ get '/update' do # Spieldaten abfragen
 	end
 		
 	halt 200, {active_player: active_player, mapdata: laender, phase: phase,
-		placeable_units: placeable_units}.to_json
+		placeable_units: placeable_units, updateCount: updateCount}.to_json
 end
 
 post '/update/phase' do # Spieler hat am Ende einer Phase auf Bestaetigen geklickt

@@ -43,11 +43,11 @@ Ein Spiel hat immer einen "Host" - einen der das Spiel/Lobby erstellt/geöffnet 
 In der linken oberen Ecke ist die Phasenanzeige. Sie zeigt ob man am Zug ist, und in welcher Phase seines Zuges man sich befindet.
 
 	Phase 1: Einheiten setzen
-		Die Einheiten die man zum Beginn einer Runde erhält werden auf den eigenen Ländern per Rechtsklick 			gesetzt.
+		Die Einheiten die man zum Beginn einer Runde erhält werden auf den eigenen Ländern per Rechtsklick gesetzt.
 	Phase 2: Angreifen
-		Man wählt eines seiner Länder aus (dieses muss mehr als 1 Einheit besitzen), wählt aus, wieviele 			Einheiten in den Kampf geschickt werden sollen und wählt darauf das anzugreifende Land aus.
+		Man wählt eines seiner Länder aus (dieses muss mehr als 1 Einheit besitzen), wählt aus, wieviele Einheiten in den Kampf geschickt werden sollen und wählt darauf das anzugreifende Land aus.
 	Phase 3: Einheiten verteilen
-		Man kann seine Einheiten an verbundenen Ländern verteilen, jedes Land muss aber immer 1 Einheit 			besitzen.
+		Man kann seine Einheiten an verbundenen Ländern verteilen, jedes Land muss aber immer 1 Einheit besitzen.
 		
 Ziel ist bisher die absolute Weltherrschaft, es gibt noch keine Unterziele oder Missionen.
 

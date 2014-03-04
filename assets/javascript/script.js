@@ -277,6 +277,15 @@ function update() {
 				owner[land.name] = land.owner;
 				unitCount[land.name] = land.unit_count;
 			}
+			// Spielende abfangen
+			if (data.gameOver) {
+				$('#active_player').text("Gewinner: " + data.active_player);
+				$('#phase').text("Das Spiel ist vorbei.");
+				$('#button_next_phase').attr("disabled", "disabled");
+				phase = 3;
+				updateHighlight();
+				return;
+			}
 			placeableUnits = data.placeable_units;
 			// Phase aktualisieren
 			phase = data.phase;

@@ -275,7 +275,8 @@ get '/update' do # Spieldaten abfragen
 	active_player = game.active_player
 	active_player = active_player.name if !active_player.nil?
 	phase = game.phase
-	phase = 3 if game.active_player != get_account
+	# phase auf "warten" setzen, wenn nicht an der Reihen; es sei denn das Spiel ist vorbei
+	phase = 3 if game.active_player != get_account && !game.is_over
 	placeable_units = game.placeable_units
 	placeable_units = 0 if game.active_player != get_account
 	
@@ -290,7 +291,7 @@ get '/update' do # Spieldaten abfragen
 	end
 		
 	halt 200, {active_player: active_player, mapdata: laender, phase: phase,
-		placeable_units: placeable_units, updateCount: updateCount}.to_json
+		placeable_units: placeable_units, updateCount: updateCount, gameOver: game.is_over}.to_json
 end
 
 post '/update/phase' do # Spieler hat am Ende einer Phase auf Bestaetigen geklickt
@@ -298,6 +299,7 @@ post '/update/phase' do # Spieler hat am Ende einer Phase auf Bestaetigen geklic
 	game = get_game
 	halt 500, "Sie sind nicht an der Reihe." unless account == game.active_player
 	game.set_next_phase
+	game.check_if_over
 	game.save
 	halt 500, "Fehler beim Speichern." unless game.saved?
 	status 200
@@ -358,6 +360,8 @@ post '/update/attack' do
 			break
 		end
 	end
+	# pruefen, ob das Spiel vorbei ist
+	game.check_if_over
 	""
 end
 

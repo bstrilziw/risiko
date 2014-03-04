@@ -16,7 +16,7 @@ Außerdem muss SQLite3 installiert sein: http://www.sqlite.org/download.html
 
 Sind alle Gems installiert, wechselt man mit der Konsole in das risiko-Verzeichnis und startet es mit `ruby main.rb` und ruft es über http://localhost:4567 im Browser auf. 
 
-Möchte man mit mehreren Spielern im gleichen Netzwerk spielen, muss man die IP-Adresse herausfinden, auf die sich dann die anderen Clients verbinden können. Wäre die IP-Adresse `46.59.134.95` des Server-Hosts, so würde man über http://46.59.134.95 auf das Spiel zugreifen können. Wichtig hierbei ist, dass der Host den Port:80 freigibt. Dieser Port kann manuell in der main.rb angepasst werden. 
+Möchte man mit mehreren Spielern im gleichen Netzwerk spielen, muss man die IP-Adresse herausfinden, auf die sich dann die anderen Clients verbinden können. Wäre die IP-Adresse `46.59.134.95` des Server-Hosts, so würde man über http://46.59.134.95:4567 auf das Spiel zugreifen können.  
 
 Vorhandene Benutzernamen sind: 
 
@@ -41,6 +41,7 @@ Wenn man eingeloggt ist, bieten sich einem die folgenden Möglichkeiten:
 Ein Spiel hat immer einen "Host" - einen der das Spiel/Lobby erstellt/geöffnet hat und in der Lage ist, das Spiel zu starten.
 
 In der linken oberen Ecke ist die Phasenanzeige. Sie zeigt ob man am Zug ist, und in welcher Phase seines Zuges man sich befindet.
+
 	Phase 1: Einheiten setzen
 		Die Einheiten die man zum Beginn einer Runde erhält werden auf den eigenen Ländern per Rechtsklick 			gesetzt.
 	Phase 2: Angreifen

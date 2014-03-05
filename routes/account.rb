@@ -35,10 +35,7 @@ end
 get '/account' do
 	@account = get_account
 	@values = Hash[:login_name, @account.login_name, :name, @account.name, :mail, @account.mail]
-	
-	if !@account.game_id.nil?
-		@game = Game.get(@account.game_id)
-	end
+	@game = @account.game unless @account.game.nil?
 	
 	slim :account
 end

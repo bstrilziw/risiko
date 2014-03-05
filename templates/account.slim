@@ -1,5 +1,5 @@
 h1 Hallo #{@account.name}!
-- if @account.game_id == nil
+- if @game == nil
 	p Du bist gerade in keinem Spiel. Möchtest du dir <a href="/list">ein Spiel suchen</a> oder <a href="/game/create">ein neues anlegen</a>?
 - else
 	- if !@game.running

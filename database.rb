@@ -9,19 +9,34 @@ class Account
 	property :password, String
 	property :name, String
 	property :mail, String
-	property :number, Integer
-	has n, :countries, 'Country'
-	belongs_to :game, :required => false # -> game.players
+	has 1, :player
+	has 1, :game, :through => :player
 end
 
 class Post
 	include DataMapper::Resource
-	
 	property :id, Serial
 	property :text, String
 	property :time, DateTime
-	
 	belongs_to :writer, 'Account'
+end
+
+class Player
+	include DataMapper::Resource
+	property :id, Serial
+	property :is_AI, Boolean, default: false
+	has n, :countries, 'Country'
+	property :number, Integer
+	belongs_to :account, required: false
+	belongs_to :game, required: false
+	
+	def name
+		unless account.nil?
+			account.name
+		else
+			"Computer-Gegner"
+		end
+	end
 end
 
 class Country
@@ -30,7 +45,7 @@ class Country
 	property :name, String
 	property :unit_count, Integer
 	belongs_to :game
-	belongs_to :account, :required => false
+	belongs_to :player, required: false
 	has n, :neighbors, 'Country', :through => Resource
 end
 
@@ -44,8 +59,8 @@ class Game
 	property :running, Boolean, default: false
 	property :private, Boolean, default: false
 	property :maximum_players, Integer, default: 6
-	belongs_to :active_player, 'Account', required: false
-	has n, :players, 'Account'
+	belongs_to :active_player, 'Player', required: false
+	has n, :players
 	has n, :countries, 'Country'
 end
 
@@ -66,15 +81,15 @@ class Game
 	# pruefen, ob dem aktiven Spieler eine Reihe von Laendern gehoert
 	def has_countries? country_names
 		country_names.each do |name|
-			country = self.countries.first(name: name)
-			if country.account != active_player
+			country = countries.first(name: name)
+			if country.player != active_player
 				return false
 			end
 		end
 		return true
 	end
 	
-	# pruefen, ob der aktive Spieler die gesamte map eingenommen hat
+	# pruefen, ob der aktive Spieler alle Laender eingenommen hat
 	def has_all_countries?
 		return active_player.countries.length == 42
 	end

@@ -223,10 +223,31 @@ function timer() {
 		updateChat();
 	} else if (site === "lobby") {
 		updateLobby();
+	} else if (site === "list") {
+		updateList();
 	}
 	setTimeout(function() {
 		timer();
 	}, 3000);
+}
+
+function updateList() {
+	$.ajax({
+		type: "GET",
+		url: "/updateGameList",
+		success: function(data) {
+			data = JSON.parse(data);
+			$("#gamelist").empty();
+			if (data.length === 0) {
+				$("#gamelist").append("<h3>Derzeit gibt es keine Spiele.</h3>")
+			}
+			for (var i = 0; i < data.length; i++) {
+				$("#gamelist").append('<li><a href="/game/join/' + data[i].name + '">'
+					+ (i+1) + ". " + data[i].name + " [Ersteller: " + data[i].creator +
+					"] [Spieler: " + data[i].playerCount + "/" + data[i].maxPlayerCount + "]</a></li>");
+			}
+		}
+	});
 }
 
 function updateLobby() {

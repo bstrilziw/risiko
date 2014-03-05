@@ -1,11 +1,13 @@
+div#site_identifier style="display:none"
+	| list
 h1 momentan offene Spiele
 br
-ul
+ul#gamelist
 	- i = 0
 	- for game in @games ||= [] do
 		- i += 1
 		/ Spielbeschreibung ausgeben
-		li: a href=="/game/join/#{game.name.to_s}" = i.to_s + ". " + game.name.to_s + " [Ersteller: " + game.players.first.name.to_s + "] [Spieler: " + game.players.length.to_s + "/6]"
+		li: a href=="/game/join/#{game.name.to_s}" = i.to_s + ". " + game.name.to_s + " [Ersteller: " + game.players.first.name.to_s + "] [Spieler: " + game.players.length.to_s + "/" + game.maximum_players.to_s + "]"
 	- if i == 0
 		h3 Derzeit gibt es keine Spiele.
 br

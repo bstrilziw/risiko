@@ -26,6 +26,17 @@ get '/updatePlayerList' do
 	{game_started: game.running, players: players}.to_json
 end
 
+get '/updateGameList' do
+	halt 500, "no access" unless logged_in?
+	games = Game.all(running: false, private: false)
+	game_array = Array.new
+	games.each do |game|
+		game_array << {name: game.name, playerCount: game.players.length,
+			maxPlayerCount: game.maximum_players, creator: game.players(order: [:number.asc]).first.name}
+	end
+	game_array.to_json
+end
+
 get '/game' do
 	redirect '/login' unless logged_in?
 	account = get_account

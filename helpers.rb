@@ -71,36 +71,4 @@ helpers do
 
 		errors
 	end
-
-	def get_north_america_names
-		["alaska","alberta","weststaaten","mittel-amerika",
-			"nordwest-territorium","ontario","oststaaten","quebec", "groenland"]
-	end
-	
-	def get_south_america_names
-		["venezuela", "peru", "brasilien", "argentinien"]
-	end
-	
-	def get_africa_names
-		["nordwest-afrika","aegypten","ost-afrika","kongo","sued-afrika","madagaskar"]
-	end
-	
-	def get_europe_names
-		["island", "skandinavien", "ukraine", "gross-britannien",
-			"mittel-europa", "west-europa", "sued-europa"]
-	end
-	
-	def get_asia_names
-		["mittlerer-osten", "afghanistan", "ural", "sibirien", "jakutien",
-			"kamtschatka", "irkutsk", "mongolei", "japan", "china", "indien", "siam"]
-	end
-	
-	def get_oceania_names
-		["indonesien", "neu-guinea", "ost-australien", "west-australien"]
-	end
-		
-	def get_all_country_names
-		get_north_america_names + get_south_america_names + get_africa_names +
-			get_europe_names + get_asia_names + get_oceania_names
-	end
 end

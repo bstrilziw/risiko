@@ -78,6 +78,19 @@ Account.create(login_name: "user", password: "da39a3ee5e6b4b0d3255bfef95601890af
 
 # Klassen erweiternde Methoden
 class Game
+	# Konstanten
+	NORTH_AMERICA_NAMES = ["alaska","alberta","weststaaten","mittel-amerika",
+		"nordwest-territorium","ontario","oststaaten","quebec", "groenland"]
+	SOUTH_AMERICA_NAMES = ["venezuela", "peru", "brasilien", "argentinien"]
+	AFRICA_NAMES = ["nordwest-afrika","aegypten","ost-afrika","kongo","sued-afrika","madagaskar"]
+	EUROPE_NAMES = ["island", "skandinavien", "ukraine", "gross-britannien",
+		"mittel-europa", "west-europa", "sued-europa"]
+	ASIA_NAMES = ["mittlerer-osten", "afghanistan", "ural", "sibirien", "jakutien",
+		"kamtschatka", "irkutsk", "mongolei", "japan", "china", "indien", "siam"]
+	OCEANIA_NAMES = ["indonesien", "neu-guinea", "ost-australien", "west-australien"]
+	ALL_COUNTRY_NAMES = NORTH_AMERICA_NAMES + SOUTH_AMERICA_NAMES + AFRICA_NAMES +
+		EUROPE_NAMES +  ASIA_NAMES+ OCEANIA_NAMES
+	
 	# pruefen, ob dem aktiven Spieler eine Reihe von Laendern gehoert
 	def has_countries? country_names
 		country_names.each do |name|
@@ -108,27 +121,27 @@ class Game
 		self.placeable_units = 3 if self.placeable_units < 3
 		# Kontinent-Boni		
 		# Nord-Amerika
-		if has_countries? get_north_america_names
+		if has_countries? NORTH_AMERICA_NAMES
 			self.placeable_units += 5
 		end
 		# Sued-Amerika
-		if has_countries? get_south_america_names
+		if has_countries? SOUTH_AMERICA_NAMES
 			self.placeable_units += 2
 		end
 		# Afrika
-		if has_countries? get_africa_names
+		if has_countries? AFRICA_NAMES
 			self.placeable_units += 3
 		end
 		# Europa
-		if has_countries? get_europe_names
+		if has_countries? EUROPE_NAMES
 			self.placeable_units += 5
 		end
 		# Asien
-		if has_countries? get_asia_names
+		if has_countries? ASIA_NAMES
 			self.placeable_units += 7
 		end
 		# Ozeanien
-		if has_countries? get_oceania_names
+		if has_countries? OCEANIA_NAMES
 			self.placeable_units += 2
 		end
 		self.save
@@ -173,6 +186,7 @@ class Player
 		return false if country.nil? || country.player != self
 		country.update(unit_count: country.unit_count + unit_count)
 		game.update(placeable_units: game.placeable_units - unit_count)
+		game.set_next_phase if game.placeable_units == 0
 		return true
 	end
 	

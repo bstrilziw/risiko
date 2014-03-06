@@ -65,13 +65,8 @@ $(document).ready(function() {
 			// Beschriftung updaten
 			var text_element = $('#text_' + name(this)).children().last();
 			text_element.text(parseInt(text_element.text()) + 1);
-			// automatisch in die nächste Phase wechseln, sobald alle Einheiten aufgebraucht sind
 			if (placeableUnits === 0) {
-				phase++;
-				$.ajax({
-					type: "POST",
-					url: "/game/next_phase"
-				});
+				phase = 3;
 			}
 			updateCounter++;
 			updatePhaseText();

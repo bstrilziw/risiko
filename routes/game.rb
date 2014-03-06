@@ -242,6 +242,7 @@ get '/game/start' do
 	game.calculate_units
 	game.save
 	halt 500, "Fehler beim Speichern." unless game.saved?
+	game.active_player.ai_action
 	redirect '/game'
 end
 

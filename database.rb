@@ -24,7 +24,7 @@ end
 class Player
 	include DataMapper::Resource
 	property :id, Serial
-	property :is_AI, Boolean, default: false
+	property :ai_controlled, Boolean, default: false
 	has n, :countries, 'Country'
 	property :number, Integer
 	belongs_to :account, required: false
@@ -155,6 +155,8 @@ class Game
 			self.active_player = self.players(order: [:number.asc])[self.active_player.number]
 		end
 		self.save
+		reload
+		active_player.ai_action # KI handeln lassen, falls verfuegbar
 	end
 	
 	# zur naechsten Phase wechseln
@@ -255,5 +257,62 @@ class Player
 		return false unless target.saved?
 		game.set_next_phase
 		return true
+	end
+	
+	def ai_action
+		reload
+		return unless ai_controlled
+		return unless is_active?
+		if game.phase == 0
+			# Verteilungsphase
+			# Random Land ermitteln und Einheiten setzen
+			game.placeable_units.times do
+				place_units countries[rand countries.length].name
+			end
+		end
+		if game.phase == 1
+			# Angriffsphase
+			countries.each do |country|
+				country.reload
+				next if country.unit_count == 1
+				# alle feindlichen Nachbarn ermitteln
+				enemy_neighbors = Array.new
+				country.neighbors.each do |neighbor|
+					enemy_neighbors << neighbor if neighbor.player != self
+				end
+				next if enemy_neighbors.empty?
+				# Zufaelligen Nachbar angreifen
+				attack country.name, enemy_neighbors[rand enemy_neighbors.length].name, country.unit_count - 1
+			end
+			game.set_next_phase
+		end
+		reload
+		if game.phase == 2
+			# Transferphase
+			most_useless_country = nil
+			most_usefull_country = nil
+			highest_enemy_unit_count = 0
+			countries.each do |country|
+				enemy_neighbor_count = 0
+				enemy_unit_count = 0
+				country.neighbors.each do |neighbor|
+					if neighbor.player != self
+						enemy_neighbor_count += 1
+						enemy_unit_count += neighbor.unit_count
+					end
+				end
+				most_useless_country = country if enemy_neighbor_count == 0 && country.unit_count > 1
+				if enemy_unit_count > highest_enemy_unit_count
+					highest_enemy_unit_count = enemy_unit_count
+					most_usefull_country = country
+				end
+			end
+			unless most_usefull_country.nil? || most_useless_country.nil?
+				transfer most_useless_country.name, most_usefull_country.name, most_useless_country.unit_count - 1 ||
+					game.set_next_phase # falls das Verschieben fehlschlaegt (z.B. weil die Laender nicht verbunden sind.)
+			else 
+				game.set_next_phase
+			end
+		end
 	end
 end

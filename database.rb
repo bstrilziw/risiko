@@ -162,3 +162,86 @@ class Game
 		self.save
 	end
 end
+
+class Player
+	def is_active?
+		self == game.active_player
+	end
+	
+	def place_units country_name, unit_count = 1
+		return false unless is_active?
+		return false unless game.placeable_units > 0 && game.placeable_units >= unit_count
+		country = game.countries.first(name: country_name)
+		return false if country.nil? || country.player != self
+		country.update(unit_count: country.unit_count + unit_count)
+		game.update(placeable_units: game.placeable_units - unit_count)
+		return true
+	end
+	
+	def attack source_name, target_name, unit_count
+		return false unless is_active?
+		source = game.countries.first(name: source_name)
+		return false if source.nil? || source.player != self
+		target = game.countries.first(name: target_name)
+		return false if target.nil? || target.player == self
+		# Nachbarschaft pruefen
+		return false if source.neighbors.get(target.id).nil?
+		# Einheitenzahl pruefen
+		return false unless source.unit_count > 1 && unit_count > 0 && unit_count < source.unit_count
+		# Angriff simulieren
+		source.update(unit_count: source.unit_count - unit_count)
+		unit_count.times do
+			if rand(6) > rand(6)
+				target.update(unit_count: target.unit_count - 1)
+			else
+				unit_count -= 1
+			end
+			if target.unit_count == 0
+				target.update(unit_count: unit_count, player: self)
+				break
+			end
+		end
+		# pruefen, ob das Spiel vorbei ist
+		game.check_if_over
+		return true
+	end
+	
+	def transfer source_name, target_name, unit_count
+		return false unless is_active?
+		source = game.countries.first(name: source_name)
+		return false if source.nil? || source.player != self
+		target = game.countries.first(name: target_name)
+		return false if target.nil? || target.player != self
+		# Einheitenzahl pruefen
+		return false unless source.unit_count > 1 && unit_count > 0 && unit_count < source.unit_count
+		# Verbindung zwischen Source und Target pruefen
+		land_verbunden = Hash.new
+		# Alle Länder des Spielers ermitteln
+		countries.each do |country|
+			land_verbunden[country] = country == source
+		end
+		# Solange iterieren, bis sich nichts mehr veraendert
+		change = true
+		while change do
+			change = false
+			land_verbunden.each do |land, verbunden|
+				if verbunden
+					land.neighbors.each do |neighbor|
+						if neighbor.player == self && land_verbunden[neighbor] == false
+							change = true
+							land_verbunden[neighbor] = true
+							break if neighbor == target
+						end
+					end
+				end
+			end
+		end
+		return false unless land_verbunden[target]
+		source.update(unit_count: source.unit_count - unit_count)
+		return false unless source.saved?
+		target.update(unit_count: target.unit_count + unit_count)
+		return false unless target.saved?
+		game.set_next_phase
+		return true
+	end
+end

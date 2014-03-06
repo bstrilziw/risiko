@@ -307,7 +307,7 @@ get '/update' do # Spieldaten abfragen
 		placeable_units: placeable_units, updateCount: updateCount, gameOver: game.is_over}.to_json
 end
 
-post '/update/phase' do # Spieler hat am Ende einer Phase auf Bestaetigen geklickt
+post '/game/next_phase' do # Spieler hat am Ende einer Phase auf Bestaetigen geklickt
 	account = get_account
 	game = get_game
 	halt 500, "Sie sind nicht an der Reihe." unless account.player == game.active_player
@@ -318,10 +318,10 @@ post '/update/phase' do # Spieler hat am Ende einer Phase auf Bestaetigen geklic
 	status 200
 end
 
-post '/update/new_unit' do
-	# fuegt einigen Laendern Einheiten hinzu
+post '/game/place_unit' do
+	# fuegt einem Land eine Einheit hinzu
 	# Zu viele Fehlerabfragen eingebaut ?
-	halt 500, "Fehler: ungueltige Daten." if params[:data].nil?
+	halt 500, "Fehler: ungueltige Daten." if params[:land_name].nil?
 	halt 500, "Fehler: Sie sind nicht eingeloggt." unless logged_in?
 	# pruefen ob Spieler an der Reihe ist
 	account = get_account
@@ -330,22 +330,15 @@ post '/update/new_unit' do
 	halt 500, "Es wurden bereits alle verfuegbaren Einheiten verteilt." if game.placeable_units <= 0
 	laender = game.countries
 	halt 500, "Fehler: Es gibt keine Laender in diesem Spiel." if laender.empty?
-	parsed_data = JSON.parse(params[:data])
-	halt 500, "Fehler: keine gueltigen Informationen." if parsed_data.class.to_s != "Array"
-	parsed_data.each do |data|
-		halt 500 if !data.key?("land_name")
-		halt 500 if !data.key?("unit_count")
-		halt 500, "Nicht genuegend Einheiten verfuegbar." if data["unit_count"] > game.placeable_units
-		land = laender.first(name: data["land_name"]) 
-		halt 500, "Fehler: Es gibt dieses Land nicht: " + data["land_name"] if land.nil?
-		land.unit_count += data["unit_count"]
-		land.save
-		game.update(placeable_units: game.placeable_units - data["unit_count"])
-	end
+	land = laender.first(name: params[:land_name]) 
+	halt 500, "Fehler: Es gibt dieses Land nicht: #{params[:land_name]}" if land.nil?
+	halt 500, "Dieses Land gehoert ihnen nicht: #{params[:land_name]}" if land.player != account.player
+	land.update(unit_count: land.unit_count + 1)
+	game.update(placeable_units: game.placeable_units - 1)
 	"" # sinatra kann hier mit einem Hash nichts anfangen
 end
 
-post '/update/attack' do
+post '/game/attack' do
 	halt 500, "Fehler: Sie sind nicht eingeloggt." unless logged_in?
 	account = get_account
 	game = get_game
@@ -378,7 +371,7 @@ post '/update/attack' do
 	""
 end
 
-post '/update/transfer' do
+post '/game/transfer' do
 	halt 500, "Fehler: Sie sind nicht eingeloggt." unless logged_in?
 	account = get_account
 	game = get_game

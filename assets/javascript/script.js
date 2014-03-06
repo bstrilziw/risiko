@@ -22,7 +22,7 @@ $(document).ready(function() {
 
 	$(document).bind("fullscreenchange", function() {
 		if (!$(document).fullScreen()) {
-			$('#toggleFullscreen').removeClass('open');	    	
+			$('#toggleFullscreen').removeClass('open');
 		}
 	});
 
@@ -58,11 +58,8 @@ $(document).ready(function() {
 			// Einheiten verteilen
 			$.ajax({
 				type: "POST",
-				url: "/update/new_unit",
-				data: {data: JSON.stringify(new Array({
-					land_name: name(this),
-					unit_count: 1
-				}))}
+				url: "/game/place_unit",
+				data: {land_name: name(this)}
 			});
 			placeableUnits--;
 			// Beschriftung updaten
@@ -73,7 +70,7 @@ $(document).ready(function() {
 				phase++;
 				$.ajax({
 					type: "POST",
-					url: "/update/phase"
+					url: "/game/next_phase"
 				});
 			}
 			updateCounter++;
@@ -110,7 +107,7 @@ $(document).ready(function() {
 					// Anzahl der angreifenden Einheiten auswählen
 					$.ajax({
 						type: "POST",
-						url: "/update/attack",
+						url: "/game/attack",
 						data: {source: name(selectedLand1), target: name(selectedLand2), units: $('#unitpicker input').val().toString()}
 					});
 					updateCounter++;
@@ -140,7 +137,7 @@ $(document).ready(function() {
 				updateHighlight();
 				$.ajax({
 					type: "POST",
-					url: "/update/transfer",
+					url: "/game/transfer",
 					data: {source: name(selectedLand1), target: name(selectedLand2), units: $('#unitpicker input').val().toString()}
 				});
 				updateCounter++;
@@ -154,15 +151,15 @@ $(document).ready(function() {
 	});
 
 	$('#button_next_phase').click(function() {
-		if (phase === 3) 
+		if (phase === 3)
 			return;
 		phase = 3; //warten
 		updateCounter++;
-		
+
 		updatePhaseText();
 		$.ajax({
 			type: "POST",
-			url: "/update/phase"
+			url: "/game/next_phase"
 		});
 		updateHighlight();
 	});
@@ -243,8 +240,8 @@ function updateList() {
 			}
 			for (var i = 0; i < data.length; i++) {
 				$("#gamelist").append('<li><a href="/game/join/' + data[i].name + '">'
-					+ (i+1) + ". " + data[i].name + " [Ersteller: " + data[i].creator +
-					"] [Spieler: " + data[i].playerCount + "/" + data[i].maxPlayerCount + "]</a></li>");
+						+ (i + 1) + ". " + data[i].name + " [Ersteller: " + data[i].creator +
+						"] [Spieler: " + data[i].playerCount + "/" + data[i].maxPlayerCount + "]</a></li>");
 			}
 		}
 	});
@@ -276,7 +273,7 @@ function updateChat() {
 			for (var i = 0; i < data.length; i++) {
 				$("#posts").append("<li>" + data[i] + "</li>");
 			}
-			$("#posts").animate({ scrollTop: $(document).height() }, "slow");
+			$("#posts").animate({scrollTop: $(document).height()}, "slow");
 		}
 	});
 }
@@ -325,21 +322,21 @@ function update() {
 function updatePhaseText() {
 	switch (phase) {
 		case 0:
-		$('#phase').text("Verteilen Sie ihre Einheiten. (" + placeableUnits + ")");
-		$('#button_next_phase').removeAttr("disabled");
-		break;
+			$('#phase').text("Verteilen Sie ihre Einheiten. (" + placeableUnits + ")");
+			$('#button_next_phase').removeAttr("disabled");
+			break;
 		case 1:
-		$('#phase').text("Angriff durchfuehren.");
-		$('#button_next_phase').removeAttr("disabled");
-		break;
+			$('#phase').text("Angriff durchfuehren.");
+			$('#button_next_phase').removeAttr("disabled");
+			break;
 		case 2:
-		$('#phase').text("Einheiten verschieben.");
-		$('#button_next_phase').removeAttr("disabled");
-		break;
+			$('#phase').text("Einheiten verschieben.");
+			$('#button_next_phase').removeAttr("disabled");
+			break;
 		case 3:
-		$('#phase').text("Warten...");
-		$('#button_next_phase').attr("disabled", "disabled");
-		break;
+			$('#phase').text("Warten...");
+			$('#button_next_phase').attr("disabled", "disabled");
+			break;
 	}
 }
 
@@ -377,7 +374,7 @@ var neighbors = {
 	"mittel-amerika": ["weststaaten", "oststaaten", "venezuela"],
 	"nordwest-territorium": ["alaska", "alberta", "groenland", "ontario"],
 	"ontario": ["nordwest-territorium", "alberta", "weststaaten",
-	"oststaaten", "quebec", "groenland"],
+		"oststaaten", "quebec", "groenland"],
 	"oststaaten": ["weststaaten", "mittel-amerika", "ontario", "quebec"],
 	"quebec": ["ontario", "oststaaten", "groenland"],
 	"groenland": ["nordwest-territorium", "ontario", "quebec", "island"],
@@ -430,15 +427,15 @@ function updateHighlight() {
 	else if (phase === 1) {
 		$('.land').each(function() {
 			if (selectedLand1 === null || selectedLand1 === this
-				|| selectedLand2 === this || selectedLand2 === null
-				&& neighbors[name(selectedLand1)].indexOf(name(this)) >= 0
-				&& owner[name(this)] !== playerName) {
+					|| selectedLand2 === this || selectedLand2 === null
+					&& neighbors[name(selectedLand1)].indexOf(name(this)) >= 0
+					&& owner[name(this)] !== playerName) {
 				$(this).css('fill', getColorToName(owner[name(this)]));
-		}
-		else {
-			$(this).css('fill', '#888');
-		}
-	});
+			}
+			else {
+				$(this).css('fill', '#888');
+			}
+		});
 	}
 	else if (phase === 2) {
 		$('.land').each(function() {

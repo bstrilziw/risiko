@@ -76,7 +76,7 @@ Account.create(login_name: "timo", password: "da39a3ee5e6b4b0d3255bfef95601890af
 Account.create(login_name: "tobias", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", mail: "tobias@internerz.de", name: "TOBI")
 Account.create(login_name: "user", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", mail: "user@internerz.de", name: "USER")
 
-# DataMapper unabhaengige Methoden
+# Klassen erweiternde Methoden
 class Game
 	# pruefen, ob dem aktiven Spieler eine Reihe von Laendern gehoert
 	def has_countries? country_names

@@ -108,30 +108,27 @@ class Game
 		self.placeable_units = 3 if self.placeable_units < 3
 		# Kontinent-Boni		
 		# Nord-Amerika
-		if has_countries? ["alaska","alberta","weststaaten","mittel-amerika",
-				"nordwest-territorium","ontario","oststaaten","quebec", "groenland"]
+		if has_countries? get_north_america_names
 			self.placeable_units += 5
 		end
 		# Sued-Amerika
-		if has_countries? ["venezuela", "peru", "brasilien", "argentinien"]
+		if has_countries? get_south_america_names
 			self.placeable_units += 2
 		end
 		# Afrika
-		if has_countries? ["nordwest-afrika","aegypten","ost-afrika","kongo","sued-afrika","madagaskar"]
+		if has_countries? get_africa_names
 			self.placeable_units += 3
 		end
 		# Europa
-		if has_countries? ["island", "skandinavien", "ukraine", "gross-britannien",
-				"mittel-europa", "west-europa", "sued-europa"]
+		if has_countries? get_europe_names
 			self.placeable_units += 5
 		end
 		# Asien
-		if has_countries? ["mittlerer-osten", "afghanistan", "ural", "sibirien", "jakutien",
-				"kamtschatka", "irkutsk", "mongolei", "japan", "china", "indien", "siam"]
+		if has_countries? get_asia_names
 			self.placeable_units += 7
 		end
 		# Ozeanien
-		if has_countries? ["indonesien", "neu-guinea", "ost-australien", "west-australien"]
+		if has_countries? get_oceania_names
 			self.placeable_units += 2
 		end
 		self.save
@@ -165,6 +162,7 @@ end
 
 class Player
 	def is_active?
+		return false if game.nil? || !game.running
 		self == game.active_player
 	end
 	

@@ -110,8 +110,7 @@ class Game
 	# prueft, ob das Spiel vorbei ist
 	def check_if_over
 		if has_all_countries? || players.length < 2
-			self.is_over = true
-			self.save
+			update(is_over: true)
 		end
 	end
 	
@@ -164,6 +163,8 @@ class Game
 		self.phase += 1
 		if self.phase == 3
 			self.phase = 0
+			# verfuegbare Einheiten berechnen
+			self.calculate_units
 			# naechsten Spieler waehlen
 			self.set_next_player_active
 		end
@@ -260,58 +261,61 @@ class Player
 	end
 	
 	def ai_action
-		reload
-		return unless ai_controlled
-		return unless is_active?
-		if game.phase == 0
-			# Verteilungsphase
-			# Random Land ermitteln und Einheiten setzen
-			game.placeable_units.times do
-				place_units countries[rand countries.length].name
-			end
-		end
-		if game.phase == 1
-			# Angriffsphase
-			countries.each do |country|
-				country.reload
-				next if country.unit_count == 1
-				# alle feindlichen Nachbarn ermitteln
-				enemy_neighbors = Array.new
-				country.neighbors.each do |neighbor|
-					enemy_neighbors << neighbor if neighbor.player != self
+		Thread.new do
+			reload
+			return unless ai_controlled
+			return unless is_active?
+			return if game.is_over
+			if game.phase == 0
+				# Verteilungsphase
+				# Random Land ermitteln und Einheiten setzen
+				game.placeable_units.times do
+					place_units countries[rand countries.length].name
 				end
-				next if enemy_neighbors.empty?
-				# Zufaelligen Nachbar angreifen
-				attack country.name, enemy_neighbors[rand enemy_neighbors.length].name, country.unit_count - 1
 			end
-			game.set_next_phase
-		end
-		reload
-		if game.phase == 2
-			# Transferphase
-			most_useless_country = nil
-			most_usefull_country = nil
-			highest_enemy_unit_count = 0
-			countries.each do |country|
-				enemy_neighbor_count = 0
-				enemy_unit_count = 0
-				country.neighbors.each do |neighbor|
-					if neighbor.player != self
-						enemy_neighbor_count += 1
-						enemy_unit_count += neighbor.unit_count
+			if game.phase == 1
+				# Angriffsphase
+				countries.each do |country|
+					country.reload
+					next if country.unit_count == 1
+					# alle feindlichen Nachbarn ermitteln
+					enemy_neighbors = Array.new
+					country.neighbors.each do |neighbor|
+						enemy_neighbors << neighbor if neighbor.player != self
+					end
+					next if enemy_neighbors.empty?
+					# Zufaelligen Nachbar angreifen
+					attack country.name, enemy_neighbors[rand enemy_neighbors.length].name, country.unit_count - 1
+				end
+				game.set_next_phase
+			end
+			reload
+			if game.phase == 2
+				# Transferphase
+				most_useless_country = nil
+				most_usefull_country = nil
+				highest_enemy_unit_count = 0
+				countries.each do |country|
+					enemy_neighbor_count = 0
+					enemy_unit_count = 0
+					country.neighbors.each do |neighbor|
+						if neighbor.player != self
+							enemy_neighbor_count += 1
+							enemy_unit_count += neighbor.unit_count
+						end
+					end
+					most_useless_country = country if enemy_neighbor_count == 0 && country.unit_count > 1
+					if enemy_unit_count > highest_enemy_unit_count
+						highest_enemy_unit_count = enemy_unit_count
+						most_usefull_country = country
 					end
 				end
-				most_useless_country = country if enemy_neighbor_count == 0 && country.unit_count > 1
-				if enemy_unit_count > highest_enemy_unit_count
-					highest_enemy_unit_count = enemy_unit_count
-					most_usefull_country = country
+				unless most_usefull_country.nil? || most_useless_country.nil?
+					transfer(most_useless_country.name, most_usefull_country.name, most_useless_country.unit_count - 1) ||
+						game.set_next_phase # falls das Verschieben fehlschlaegt (z.B. weil die Laender nicht verbunden sind.)
+				else 
+					game.set_next_phase
 				end
-			end
-			unless most_usefull_country.nil? || most_useless_country.nil?
-				transfer most_useless_country.name, most_usefull_country.name, most_useless_country.unit_count - 1 ||
-					game.set_next_phase # falls das Verschieben fehlschlaegt (z.B. weil die Laender nicht verbunden sind.)
-			else 
-				game.set_next_phase
 			end
 		end
 	end

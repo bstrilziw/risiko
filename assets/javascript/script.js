@@ -1,12 +1,15 @@
 var headerMenu;
 var phase = 0;
 var placeableUnits = 0;
-var playerName;
+var playerNumber;
 var selectedLand1 = null, selectedLand2 = null;
 var unitCount = new Object(), owner = new Object();
 var hasClickedOnRules = false;
 var site;
 var updateCounter = 0;
+// Spielerinformationen
+var playerName = new Object();
+var playerColor = new Object();
 
 $(document).ready(function() {
 	headerMenu = $('#menu');
@@ -52,7 +55,7 @@ $(document).ready(function() {
 	$('.land').click(function() {
 		// Verteilungsphase
 		if (phase === 0 && placeableUnits > 0) {
-			if (owner[name(this)] !== playerName) {
+			if (owner[name(this)] !== playerNumber) {
 				return;
 			}
 			// Einheiten verteilen
@@ -74,7 +77,7 @@ $(document).ready(function() {
 		// Angriffsphase
 		else if (phase === 1) {
 			if (selectedLand1 === null) {
-				if (owner[name(this)] !== playerName) {
+				if (owner[name(this)] !== playerNumber) {
 					return;
 				}
 				selectedLand1 = this;
@@ -82,7 +85,7 @@ $(document).ready(function() {
 				showUnitPicker(selectedLand1.id);
 			}
 			// eigenes Land?
-			else if (owner[name(this)] === playerName) {
+			else if (owner[name(this)] === playerNumber) {
 				selectedLand1 = this;
 				showUnitPicker(selectedLand1.id);
 				selectedLand2 = null;
@@ -116,7 +119,7 @@ $(document).ready(function() {
 		}
 		// Verschiebungsphase
 		else if (phase === 2) {
-			if (owner[name(this)] !== playerName) {
+			if (owner[name(this)] !== playerNumber) {
 				destroyUnitPicker();
 				selectedLand1 = null;
 				selectedLand2 = null;
@@ -171,6 +174,14 @@ $(document).ready(function() {
 			url: "/game/next_phase"
 		});
 		updateHighlight();
+	});
+
+	// Spielerdaten ermitteln
+	$('#playerlist ul li').each(function() {
+		playerName[Number($(this).children().first().text())] =
+				$(this).children().eq(1).text().trim();
+		playerColor[Number($(this).children().first().text())] =
+				$(this).children().last().css("background-color");
 	});
 
 	// öffnet das Menü
@@ -306,7 +317,7 @@ function update() {
 			}
 			// Spielende abfangen
 			if (data.gameOver) {
-				$('#active_player').text("Gewinner: " + data.active_player);
+				$('#active_player').text("Gewinner: " + playerName[data.active_player]);
 				$('#phase').text("Das Spiel ist vorbei.");
 				$('#button_next_phase').attr("disabled", "disabled");
 				phase = 3;
@@ -318,10 +329,10 @@ function update() {
 			phase = data.phase;
 			updatePhaseText();
 			// Aktiver-Spieler-Beschriftung anpassen
-			$('#active_player').text("Aktiver Spieler: " + data.active_player);
+			$('#active_player').text("Aktiver Spieler: " + playerName[data.active_player]);
 			// Spieler Namen aktualisieren
 			if (phase !== 3) {
-				playerName = data.active_player;
+				playerNumber = data.active_player;
 			}
 			updateHighlight();
 		}
@@ -347,16 +358,6 @@ function updatePhaseText() {
 			$('#button_next_phase').attr("disabled", "disabled");
 			break;
 	}
-}
-
-function getColorToName(name) {
-	var color = "#888";
-	$('#playerlist ul li').each(function() {
-		if ($(this).children().first().text() === name) {
-			color = $(this).children().last().text().trim();
-		}
-	});
-	return color;
 }
 
 function send(textbox) {
@@ -430,7 +431,7 @@ var neighbors = {
 function updateHighlight() {
 	if (phase === 0) {
 		$('.land').each(function() {
-			$(this).css('fill', getColorToName(owner[name(this)]));
+			$(this).css('fill', playerColor[owner[name(this)]]);
 		});
 	}
 	else if (phase === 1) {
@@ -438,8 +439,8 @@ function updateHighlight() {
 			if (selectedLand1 === null || selectedLand1 === this
 					|| selectedLand2 === this || selectedLand2 === null
 					&& neighbors[name(selectedLand1)].indexOf(name(this)) >= 0
-					&& owner[name(this)] !== playerName) {
-				$(this).css('fill', getColorToName(owner[name(this)]));
+					&& owner[name(this)] !== playerNumber) {
+				$(this).css('fill', playerColor[owner[name(this)]]);
 			}
 			else {
 				$(this).css('fill', '#888');
@@ -449,7 +450,7 @@ function updateHighlight() {
 	else if (phase === 2) {
 		$('.land').each(function() {
 			if (selectedLand1 === null || (selectedLand2 === null && connectedToLand1[name(this)]) || selectedLand1 === this || selectedLand2 === this) {
-				$(this).css('fill', getColorToName(owner[name(this)]));
+				$(this).css('fill', playerColor[owner[name(this)]]);
 			} else {
 				$(this).css('fill', '#888');
 			}
@@ -457,7 +458,7 @@ function updateHighlight() {
 	}
 	else if (phase === 3) {
 		$('.land').each(function() {
-			$(this).css('fill', getColorToName(owner[name(this)]));
+			$(this).css('fill', playerColor[owner[name(this)]]);
 		});
 	}
 }
@@ -485,7 +486,7 @@ var connectedToLand1 = new Object();
 function calculateConnections() {
 	// Alle Länder des Spielers ermitteln
 	for (var landName in owner) {
-		if (owner[landName] === playerName) {
+		if (owner[landName] === playerNumber) {
 			if (landName === name(selectedLand1)) {
 				connectedToLand1[landName] = true;
 			} else {
@@ -500,7 +501,7 @@ function calculateConnections() {
 		for (var landName in connectedToLand1) {
 			if (connectedToLand1[landName] === true) {
 				for (var i in neighbors[landName]) {
-					if (owner[neighbors[landName][i]] === playerName && !connectedToLand1[neighbors[landName][i]]) {
+					if (owner[neighbors[landName][i]] === playerNumber && !connectedToLand1[neighbors[landName][i]]) {
 						change = true;
 						connectedToLand1[neighbors[landName][i]] = true;
 					}

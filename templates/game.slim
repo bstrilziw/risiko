@@ -218,25 +218,20 @@ div#playerlist style="width:150px;border: 2px solid #aac1ff; position:relative; 
 		- for player in @players do
 			- i += 1
 			li
+				div style="display:none" #{player.number}
 				span #{player.name}
 				- if i == 1
 					div style="width:15px;height:15px;float:right; background-color: #e0c284" &nbsp;
-					div style="display:none" #e0c284
 				- if i == 2
 					div style="width:15px;height:15px;float:right; background-color: #274359" &nbsp;
-					div style="display:none" #274359
 				- if i == 3
 					div style="width:15px;height:15px;float:right; background-color: #8f5f48" &nbsp;
-					div style="display:none" #8f5f48
 				- if i == 4
 					div style="width:15px;height:15px;float:right; background-color: #2975a7" &nbsp;
-					div style="display:none" #2975a7
 				- if i == 5
 					div style="width:15px;height:15px;float:right; background-color: #654337" &nbsp;
-					div style="display:none" #654337
 				- if i == 6
 					div style="width:15px;height:15px;float:right; background-color: #7fb5d7" &nbsp;
-					div style="display:none" #7fb5d7
 
 div.chatbox
 	div#posts

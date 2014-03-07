@@ -312,7 +312,7 @@ get '/update' do # Spieldaten abfragen
 	# Allgemeine Spielinformationen
 	game = get_game
 	active_player = game.active_player
-	active_player = active_player.name if !active_player.nil?
+	active_player = active_player.number if !active_player.nil?
 	phase = game.phase
 	# phase auf "warten" setzen, wenn nicht an der Reihen; es sei denn das Spiel ist vorbei
 	phase = 3 if game.active_player != get_account.player && !game.is_over
@@ -323,7 +323,7 @@ get '/update' do # Spieldaten abfragen
 	laender = Array.new
 	game.countries.each do |land|
 		owner = land.player
-		owner = owner.name if !owner.nil?
+		owner = owner.number if !owner.nil?
 		laender << {owner: owner, name: land.name, unit_count: land.unit_count}
 	end
 		

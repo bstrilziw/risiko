@@ -274,10 +274,10 @@ get '/game/leave' do
 	game = get_game
 	game.players(:number.gt => account.player.number).each do |player|
 		player.number -= 1 # diese Aenderung tritt erst nach dem naechsten
-											 # save und reload von game in Kraft
+		# save und reload von game in Kraft
 	end
 	# bin ich an der Reihe?
-	if game.active_player == account.player
+	if game.active_player == account.player && !game.is_over
 		game.set_next_player_active
 	end
 	halt 500, "Fehler beim Speichern." unless game.saved?
@@ -287,13 +287,15 @@ get '/game/leave' do
 	Player.get(player.id).destroy!
 	game = Game.get(game.id)
 	# Spiel loeschen, wenn leer
-	redirect '/list' unless game.players.empty?
-	game.countries.each do |country|
-		country.country_countries.destroy
-		country.destroy
+	if game.players.empty? || game.players.length == game.ai_player_count
+		game.players.destroy!
+		game.countries.each do |country|
+			country.country_countries.destroy
+			country.destroy
+		end
+		game.reload
+		game.destroy
 	end
-	game.reload
-	game.destroy
 	redirect '/list'
 end
 
@@ -333,11 +335,7 @@ post '/game/next_phase' do # Spieler hat am Ende einer Phase auf Bestaetigen gek
 	account = get_account
 	game = get_game
 	halt 500, "Sie sind nicht an der Reihe." unless account.player == game.active_player
-	game.set_next_phase
-	game.check_if_over
-	game.save
-	halt 500, "Fehler beim Speichern." unless game.saved?
-	status 200
+	halt 500, "Fehler beim Wechseln der Phase." unless game.set_next_phase
 end
 
 post '/game/place_unit' do

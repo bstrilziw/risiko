@@ -109,6 +109,7 @@ class Game
 	
 	# prueft, ob das Spiel vorbei ist
 	def check_if_over
+		reload
 		if has_all_countries? || players.length < 2
 			update(is_over: true)
 		end
@@ -116,6 +117,7 @@ class Game
 	
 	# verfuegbare Einheiten berechnen
 	def calculate_units
+		reload
 		self.placeable_units = self.active_player.countries.length / 3
 		self.placeable_units = 3 if self.placeable_units < 3
 		# Kontinent-Boni		
@@ -148,6 +150,8 @@ class Game
 	
 	# naechsten Spieler aktiv setzen
 	def set_next_player_active
+		reload
+		return if is_over
 		if active_player.number == players.length
 			self.active_player = players(order: [:number.asc]).first
 		else
@@ -155,24 +159,26 @@ class Game
 		end
 		save
 		reload
-		active_player.ai_action # KI handeln lassen, falls verfuegbar
+		if active_player.countries.length == 0
+			set_next_player_active
+		else
+			# verfuegbare Einheiten berechnen
+			calculate_units
+			# KI handeln lassen, falls verfuegbar
+			active_player.ai_action
+		end
 	end
 	
 	# zur naechsten Phase wechseln
 	def set_next_phase
 		self.phase += 1
-		if self.phase == 3
+		if phase == 3
 			self.phase = 0
-			# verfuegbare Einheiten berechnen
-			self.calculate_units
+			save
 			# naechsten Spieler waehlen
-			self.set_next_player_active
+			set_next_player_active
 		end
-		if self.phase == 0
-			# verfuegbare Einheiten berechnen
-			self.calculate_units
-		end
-		self.save
+		save
 	end
 	
 	# Computergegner hinlzufuegen

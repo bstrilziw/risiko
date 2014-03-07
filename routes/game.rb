@@ -15,6 +15,27 @@ get '/lobby' do
 	slim :lobby
 end
 
+post '/game/add_ai' do
+	halt 500, "no access" unless logged_in?
+	account = get_account
+	halt 500, "Sie sind in keinem Spiel." if account.game.nil?
+	game = account.game
+	halt 500, "Spiel laeuft bereits." if game.running
+	halt 500, "keine Berechtigung." unless account.player == game.players(order: [:number.asc]).first
+	halt 500, "maximale Spieleranzahl erreicht" if game.players.length == game.maximum_players
+	halt 500, "hinzufuegen fehlgeschlagen" unless game.add_ai_player
+end
+
+post '/game/remove_ai' do
+	halt 500, "no access" unless logged_in?
+	account = get_account
+	halt 500, "Sie sind in keinem Spiel." if account.game.nil?
+	game = account.game
+	halt 500, "Spiel laeuft bereits." if game.running
+	halt 500, "keine Berechtigung." unless account.player == game.players(order: [:number.asc]).first
+	halt 500, "loeschen fehlgeschlagen" unless game.remove_ai_player
+end
+
 get '/updatePlayerList' do
 	halt 500, "no access" unless logged_in?
 	game = get_game
@@ -252,13 +273,13 @@ get '/game/leave' do
 	account = get_account
 	game = get_game
 	game.players(:number.gt => account.player.number).each do |player|
-		player.number -= 1
+		player.number -= 1 # diese Aenderung tritt erst nach dem naechsten
+											 # save und reload von game in Kraft
 	end
 	# bin ich an der Reihe?
 	if game.active_player == account.player
 		game.set_next_player_active
 	end
-	game.save
 	halt 500, "Fehler beim Speichern." unless game.saved?
 	player = account.player
 	player.update(account: nil)

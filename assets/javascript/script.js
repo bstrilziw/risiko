@@ -145,6 +145,20 @@ $(document).ready(function() {
 		}
 	});
 
+	if (site === "lobby") {
+		$('#button_add_ai').click(function() {
+			$.ajax({
+				type: "POST",
+				url: "/game/add_ai"
+			});
+		});
+		$('#button_remove_ai').click(function() {
+			$.ajax({
+				type: "POST",
+				url: "/game/remove_ai"
+			});
+		});
+	}
 	$('#button_next_phase').click(function() {
 		if (phase === 3)
 			return;

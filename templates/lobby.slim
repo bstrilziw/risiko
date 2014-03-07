@@ -4,6 +4,10 @@ h2 Spiellobby
 br
 h3 Spieler
 br
+button#button_add_ai KI hinzufügen
+button#button_remove_ai KI entfernen
+br
+br
 ul#playerlist
 	- for player in @players ||= [] do
 		li.player = player.name

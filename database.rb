@@ -148,12 +148,12 @@ class Game
 	
 	# naechsten Spieler aktiv setzen
 	def set_next_player_active
-		if self.active_player.number == self.players.length
-			self.active_player = self.players(order: [:number.asc]).first
+		if active_player.number == players.length
+			self.active_player = players(order: [:number.asc]).first
 		else
-			self.active_player = self.players(order: [:number.asc])[self.active_player.number]
+			self.active_player = players(order: [:number.asc])[active_player.number]
 		end
-		self.save
+		save
 		reload
 		active_player.ai_action # KI handeln lassen, falls verfuegbar
 	end
@@ -173,6 +173,34 @@ class Game
 			self.calculate_units
 		end
 		self.save
+	end
+	
+	# Computergegner hinlzufuegen
+	def add_ai_player
+		Player.create(game: self, ai_controlled: true, number: players.length + 1)
+	end
+	
+	def remove_ai_player
+		players.reverse_each do |player|
+			if player.ai_controlled
+				# eventuell naechsten Spieler aktiv setzen
+				set_next_player_active if player == active_player
+				# Nummern folgender Spieler anpassen
+				players(:number.gt => player.number).each do |p|
+					p.update number: p.number - 1
+				end
+				return player.destroy!
+			end
+		end
+		false
+	end
+	
+	def ai_player_count
+		count = 0
+		players.each do |player|
+			count += 1 if player.ai_controlled
+		end
+		count
 	end
 end
 
@@ -216,6 +244,7 @@ class Player
 				break
 			end
 		end
+		game.reload
 		# pruefen, ob das Spiel vorbei ist
 		game.check_if_over
 		return true
@@ -263,6 +292,7 @@ class Player
 	def ai_action
 		Thread.new do
 			reload
+			return unless game.running
 			return unless ai_controlled
 			return unless is_active?
 			return if game.is_over

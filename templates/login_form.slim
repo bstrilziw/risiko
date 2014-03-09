@@ -7,10 +7,16 @@ form.login.form action="/login" method="POST"
 
 	div
 		label for="username" Benutzername:
-		input#username type="text" name="login_name"
+		- if @username
+			input#username type="text" name="login_name"  value==@username
+		- else 
+			input#username type="text" name="login_name"  autofocus="autofocus"
 	div
 		label for="password" Passwort:
-		input#password type="password" name="login_pass"
+		- if @username
+			input#password type="password" name="login_pass" autofocus="autofocus"
+		- else
+			input#password type="password" name="login_pass"
 	input.button type="submit" value="Anmelden"
 	
 p Oder einen <a href="/account/new">neuen Account erstellen</a>?

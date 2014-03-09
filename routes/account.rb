@@ -15,7 +15,8 @@ post '/login' do
 		if account.nil? || account.password != Digest::SHA1.hexdigest(params[:login_pass])
 			# Benutzername oder Passwort ungueltig
 			@errors << "Benutzername oder Passwort ungueltig"
-			
+			@username = params[:login_name]
+				
 			slim :login
 		else
 			# Login-Informationen korrekt

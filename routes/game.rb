@@ -314,7 +314,7 @@ get '/update' do # Spieldaten abfragen
 	active_player = game.active_player
 	active_player = active_player.number if !active_player.nil?
 	phase = game.phase
-	# phase auf "warten" setzen, wenn nicht an der Reihen; es sei denn das Spiel ist vorbei
+	# phase auf "warten" setzen, wenn nicht an der Reihe; es sei denn das Spiel ist vorbei
 	phase = 3 if game.active_player != get_account.player && !game.is_over
 	placeable_units = game.placeable_units
 	placeable_units = 0 if game.active_player != get_account.player

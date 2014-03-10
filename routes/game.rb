@@ -119,7 +119,7 @@ post '/game/create' do
 		@errors << "Der Spielname fehlt."
 	end
 	
-	if !Game.first(name: params[:game_name]).nil?
+	if !Game.first(name: params[:game_name], running: false).nil?
 		@errors << "Ein Spiel mit dem Namen \"#{params[:game_name]}\" gibt es bereits."
 	end
 	
@@ -134,13 +134,12 @@ end
 get '/game/join/:game_name' do	
 	redirect '/login' unless logged_in?
 	redirect '/list' if params[:game_name].nil?
-	game = Game.first(name: params[:game_name])
-	halt 500, "Dises Spiel existiert nicht." if game.nil?
+	game = Game.first(name: params[:game_name], running: false)
+	halt 500, "Dieses Spiel existiert nicht." if game.nil?
 	account = get_account
 	redirect '/lobby' if account.game == game
 	redirect '/list' if game.players.count == game.maximum_players
 	halt 500, "Sie sind bereits in einem Spiel." unless account.game.nil?
-	halt 500, "Spiel laeuft bereits." if game.running
 	account.update(player: Player.create(game: game, number: game.players.length+1))
 	
 	redirect '/lobby'

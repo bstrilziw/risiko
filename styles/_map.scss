@@ -1,5 +1,10 @@
 .land {
 	fill: white;
+	stroke: #000000;
+	stroke-width: 1px;
+	stroke-linecap: butt;
+	stroke-linejoin: miter;
+	stroke-opacity: 1;
 }
 .land_text {
 	/* Makes it so the user can't accidentally click and select text that is meant as a label only */
@@ -15,6 +20,13 @@
 	filter: url(/game#filter_glow);
 }
 
+#background {
+	fill: white;
+}
+#labels {
+	 filter: url(#filter_white_glow);
+	 font-weight: bold;
+}
 #unitpicker {
 	position: absolute;
 	z-index: 10;

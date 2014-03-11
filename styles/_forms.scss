@@ -12,6 +12,28 @@
 		background: darken($main-link-color, 20%);
 		@include transition(background 0.2s ease-out);
 	}
+
+	.icon {
+		display: none;
+	}
+
+	&.loading {
+		position: relative;
+		padding-right: 25px;
+
+		.icon {
+			display: block;
+			position: absolute;
+			width: 16px;
+			height: 16px;
+			top: 50%;
+			margin-top: -8px;
+			right: 5px;
+			background-image: url(../images/css/ajax-loader.gif);
+			background-repeat: no-repeat;
+			background-position: right center;
+		}
+	}
 }
 
 form.form {

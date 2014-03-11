@@ -150,12 +150,16 @@ $(document).ready(function() {
 
 	if (site === "lobby") {
 		$('#button_add_ai').click(function() {
+			$(this).attr("disabled", true).addClass("loading");
 			$.ajax({
 				type: "POST",
 				url: "/game/add_ai"
+			}).fail(function() {
+				// maximale Spielerzahl erreicht
 			});
 		});
 		$('#button_remove_ai').click(function() {
+			$(this).attr("disabled", true).addClass("loading");
 			$.ajax({
 				type: "POST",
 				url: "/game/remove_ai"
@@ -279,6 +283,7 @@ function updateLobby() {
 			for (var i = 0; i < data.players.length; i++) {
 				$("#lobbylist").append("<li>" + data.players[i] + "</li>");
 			}
+			$('#button_add_ai, #button_remove_ai').attr("disabled", false).removeClass("loading");
 		}
 	});
 }

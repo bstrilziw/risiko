@@ -275,9 +275,9 @@ function updateLobby() {
 			data = JSON.parse(data);
 			if (data.game_started)
 				location.reload();
-			$("#playerlist").empty();
+			$("#lobbylist").empty();
 			for (var i = 0; i < data.players.length; i++) {
-				$("#playerlist").append("<li>" + data.players[i] + "</li>");
+				$("#lobbylist").append("<li>" + data.players[i] + "</li>");
 			}
 		}
 	});

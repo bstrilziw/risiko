@@ -5,6 +5,7 @@ Unser Risiko-Klon läuft mit dem Ruby-Gem `sinatra` im Browser. Damit das Spiel 
 
 	sinatra
 	sinatra-contrib
+	sass
 	slim
 	json
 	digest

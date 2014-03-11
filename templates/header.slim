@@ -7,6 +7,6 @@ header
 				- if !@game.running
 					| Aktives Spiel: <a href="/lobby">#{@game.name}</a> (Warten auf weitere Mitspieler)
 				- else
-					| Aktives Spiel: <a href="/game">#{@game.name}</a> - An der Reihe: #{get_playername_by_activeplayerid(@game.active_player_id)}
+					| Aktives Spiel: <a href="/game">#{@game.name}</a> - An der Reihe: #{@game.active_player.name}
 		
 		== slim :header_nav

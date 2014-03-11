@@ -1,5 +1,12 @@
 header
+	div.logo
+		a href="/" Risiko
 	.wrap
-		div.logo
-			a href="/" Risiko
-	== slim :header_nav
+		- if @game != nil
+			div.gameinfo
+				- if !@game.running
+					| Aktives Spiel: <a href="/lobby">#{@game.name}</a> (Warten auf weitere Mitspieler)
+				- else
+					| Aktives Spiel: <a href="/game">#{@game.name}</a> - An der Reihe: #{get_playername_by_activeplayerid(@game.active_player_id)}
+		
+		== slim :header_nav

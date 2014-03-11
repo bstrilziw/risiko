@@ -9,4 +9,7 @@ helpers do
 		halt 500, "Fehler: Keinem Spiel zugeordnet." if game.nil?
 		game
 	end
+	def get_playername_by_activeplayerid(active_player_id)
+		Account.get(Player.get(active_player_id).account_id).name
+	end
 end

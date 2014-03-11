@@ -364,3 +364,7 @@ post '/game/transfer' do
 	
 	status 500 unless account.player.transfer params[:source], params[:target], params[:units].to_i
 end
+
+post '/game/rules' do
+	slim :regeln, :layout => false
+end

@@ -196,22 +196,30 @@ $(document).ready(function() {
 
 	//Regeln
 	$("#regeln").click(function() {
-		$(".regeln").toggle('clip', 'fast');
-		hasClickedOnRules = true;
-	});
+		if (!$(".regeln").length) {
+			$.ajax({
+				type: "POST",
+				url: "/game/rules",
+				success: function(data) {
+					$('body').append(data);
 
-	$("#exit").click(function() {
-		$(".regeln").toggle('clip', 'fast');
-	});
+					$("#exit").click(function() {
+						$(".regeln").toggle('clip', 'fast');
+					});
 
-	$(".regeln").toggle();
+					$(".regeln2, .phase2").accordion({
+						collapsible: true,
+						heightStyle: "content"
+					});
 
-	$(".regeln2, .phase2").accordion({
-		collapsible: true,
-		heightStyle: "content"
-	});
-
-	$('.regeln').click(function() {
+					$('.regeln').click(function() {
+						hasClickedOnRules = true;
+					});
+				}
+			});
+		} else {
+			$(".regeln").toggle('clip', 'fast');
+		}
 		hasClickedOnRules = true;
 	});
 

@@ -12,10 +12,12 @@ configure do
 	Slim::Engine.set_default_options pretty: true, sort_attrs: true
 	set :views, :slim => 'templates', :scss => 'styles'
 	set :public_folder, 'assets'
+	# set :bind, '0.0.0.0'
+	# set :port, 80
 	require_relative 'database'
-	set :bind, '0.0.0.0'
+	
 	enable :sessions
-	#set :port, 80
+	set :session_secret, 'super secret'
 end
 
 get('/styles/styles.css') { scss :styles }

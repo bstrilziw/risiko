@@ -65,7 +65,7 @@ class Game
 end
 
 DataMapper.finalize
-DataMapper.auto_migrate!
+DataMapper.auto_migrate! if development?
 
 # Testdatensaetze
 Account.create(login_name: "admin", password: "da39a3ee5e6b4b0d3255bfef95601890afd80709", mail: "admin@internerz.de", name: "ADM1N")

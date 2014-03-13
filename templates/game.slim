@@ -36,13 +36,11 @@ div#playerlist
 
 div.chatbox
 	div#posts
-		- if @posts.any?
-			ul#posts
-				-@posts.each do |post|
-					li
-						| [#{post.time.strftime("%H:%M") if post.time}] #{post.writer.name}: #{post.text}
-		- else
-			p No Posts have been created yet!
+		ul
+			- if @posts.any?
+					-@posts.each do |post|
+						li
+							| [#{post.time.strftime("%H:%M") if post.time}] #{post.writer.name}: #{post.text}
 			
 	div#chatInput
 		form onsubmit=" return send(this.message)"

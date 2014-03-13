@@ -302,11 +302,15 @@ function updateChat() {
 		url: "/updateChat",
 		success: function(data) {
 			data = JSON.parse(data);
-			$("#posts").empty();
-			for (var i = 0; i < data.length; i++) {
-				$("#posts").append("<li>" + data[i] + "</li>");
+			var chatList = $("#posts ul");
+
+			if (data[data.length - 1] != $.trim(chatList.find("li:last-child").text())) {
+				chatList.empty();
+				for (var i = 0; i < data.length; i++) {
+					chatList.append("<li>" + data[i] + "</li>");
+				}
+				chatList.parent().animate({scrollTop: $(document).height()}, "slow");
 			}
-			$("#posts").animate({scrollTop: $(document).height()}, "slow");
 		}
 	});
 }
